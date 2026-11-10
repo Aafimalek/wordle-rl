@@ -136,3 +136,76 @@ if pdf.exists():
     clip = fitz.Rect(page.rect.x0 + 40, top, page.rect.x1 - 40, cap.y0 - 4)
     page.get_pixmap(dpi=260, clip=clip).save(OUT / "overview.png")
     print("wrote overview.png")
+
+# 6. decoding: model alone vs a token-level dictionary limit vs word-level decoding (heldout, 463 games)
+pairs = [("optimal teacher (v3c)", "v3c"), ("clue-consistent teacher (v5)", "v5-s1")]
+modes = [("model alone", "", BLUE), ("token-level limit", "-constrained-wordle", YELLOW),
+         ("word-level decoding", "-constrained-wordle-word", ORANGE)]
+fig, ax = plt.subplots(figsize=(10, 4.2))
+style(ax)
+w = 0.26
+for j, (label, suf, color) in enumerate(modes):
+    for i, (_, run) in enumerate(pairs):
+        v = win("heldout", run, suf)
+        ax.bar(i + (j - 1) * w, v, width=w - 0.03, color=color, label=label if i == 0 else None)
+        ax.text(i + (j - 1) * w, v + 1, f"{v:.1f}%", ha="center", fontsize=10)
+ax.set_xticks(range(len(pairs)), [p[0] for p in pairs])
+ax.set_ylim(0, 108)
+ax.set_ylabel("games won on heldout (%)")
+ax.legend(loc="upper left", bbox_to_anchor=(0, -0.1), fontsize=9.5, ncol=3)
+ax.set_title("Limiting output to whole dictionary words", loc="left", fontsize=14, fontweight="bold")
+save(fig, "decoding.png")
+
+# 7. training curves: in-training select win rate; v10 drawn after the last step of v8 s3 (its starting weights)
+runs = [("v7 s1 (drill)", "v7-s1", INK2, "-"), ("v8 s1", "v8-s1", BLUE, "-"), ("v8 s2", "v8-s2", AQUA, "-"),
+        ("v8 s3 (base of v10)", "v8-s3", YELLOW, "-"), ("v10 s1 (recovery)", "v10-s1", ORANGE, "-")]
+fig, ax = plt.subplots(figsize=(10, 4.4))
+style(ax)
+for label, run, color, ls in runs:
+    f = ROOT / "results" / "runs" / f"sft-gemma270m-{run}" / "metrics.jsonl"
+    pts = [(d["step"] + (5436 if run == "v10-s1" else 0), 100 * d["select/win_rate"])
+           for line in f.read_text(encoding="utf-8").splitlines() if "select/win_rate" in (d := json.loads(line))]
+    ax.plot(*zip(*pts, strict=True), color=color, linestyle=ls, linewidth=2, marker="o", markersize=3.5, label=label)
+ax.axvline(5436, color=INK2, linewidth=0.8, linestyle=":")
+ax.text(5480, 50, "recovery round\nstarts here", fontsize=9, color=INK2, va="bottom")
+ax.set_xlabel("training step (64 samples per step)")
+ax.set_ylabel("games won on select, during training (%)")
+ax.legend(loc="upper left", fontsize=9.5)
+ax.set_title("Drill rounds start below their base, then climb", loc="left", fontsize=14, fontweight="bold")
+save(fig, "curves.png")
+
+# 8. invalid turns by turn number (select, model alone, strict)
+import csv  # noqa: E402
+
+rows = list(csv.DictReader((ROOT / "results" / "analysis" / "invalid_by_turn_select.csv").open(encoding="utf-8")))
+colors = {"v7 s1": INK2, "v8 s1": BLUE, "v8 s3": YELLOW, "v10 s1": ORANGE}
+fig, ax = plt.subplots(figsize=(10, 4.2))
+style(ax)
+for label in dict.fromkeys(r["model"] for r in rows):
+    pts = [(int(r["turn"]), 100 * int(r["invalid"]) / max(int(r["turns"]), 1)) for r in rows if r["model"] == label]
+    ax.plot(*zip(*pts, strict=True), color=colors.get(label, INK2), linewidth=2.2, marker="o", markersize=6, label=label)
+ax.set_xlabel("turn")
+ax.set_ylabel("share of turns that are non-words (%)")
+ax.legend(loc="upper left")
+ax.set_title("Mistakes pile up late in the game", loc="left", fontsize=14, fontweight="bold")
+save(fig, "invalid_by_turn.png")
+
+# 9. guesses used: the solver vs the final model alone and with word-level decoding (heldout)
+series = [("solver (teacher)", "heldout:solver-LookaheadSolver", INK2),
+          ("final model alone", f"heldout:{M}v10-s1-best", BLUE),
+          ("final model, word-level decoding", f"heldout:{M}v10-s1-best-constrained-wordle-word", ORANGE)]
+cats = ["1", "2", "3", "4", "5", "6", "fail"]
+fig, ax = plt.subplots(figsize=(10, 4.2))
+style(ax)
+w = 0.27
+for j, (label, key, color) in enumerate(series):
+    h = S[key]["histogram"]
+    total = sum(h.values())
+    ax.bar([i + (j - 1) * w for i in range(len(cats))], [100 * h[c] / total for c in cats], width=w - 0.03,
+           color=color, label=label)
+ax.set_xticks(range(len(cats)), ["1", "2", "3", "4", "5", "6", "lost"])
+ax.set_xlabel("guesses used (heldout, 463 games)")
+ax.set_ylabel("games (%)")
+ax.legend(loc="upper right")
+ax.set_title("How many guesses each game took", loc="left", fontsize=14, fontweight="bold")
+save(fig, "guesses.png")

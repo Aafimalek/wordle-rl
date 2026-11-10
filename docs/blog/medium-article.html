@@ -9,31 +9,79 @@ Copy everything BELOW the line into the story body.</div>
 <hr>
 <article id="medium-body">
 <figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/board.png" alt="The same word before and after the last training round. Left: the model writes the rejected non-word SATON four times and loses. Right: the final model wins in four turns."><figcaption>The same word before and after the last training round. Left: the model writes the rejected non-word SATON four times and loses. Right: the final model wins in four turns.</figcaption></figure>
-<p>Frontier models win almost every game of Wordle. On the public WordleBench leaderboard, GPT-5 wins 99 of 100 games, and many other large models win 94 to 98.</p>
+<p>Frontier models win almost every game of Wordle. On the public WordleBench leaderboard, GPT-5 wins 99 of 100 games, and many other large models win between 94 and 98.</p>
 <p>I wanted to know how far a very small model could go if I trained it for this one game and paid nothing for compute. So I took Gemma 3 270M, a language model with 270 million parameters, small enough to run on a laptop CPU, and trained it on free Kaggle notebook GPUs.</p>
-<p>The final model wins 97 of 100 WordleBench games when its guesses are limited to dictionary words, and 87 with no help at all. That alone wasn't the most interesting part. The interesting part is <em>why</em> it lost the games it lost, and what I found when I read the scoring code of the leaderboards I was comparing against.</p>
-<p>This is the full story: what worked, what didn't, and the mistakes along the way.</p>
+<p>The final model wins 97 of 100 WordleBench games when its guesses are limited to dictionary words, 94 with no help under the leaderboard's own rules, and 87 under a stricter rule that I explain below. But the score is not the most interesting part. The interesting part is <em>why</em> the model lost the games it lost, and what I found when I read the scoring code of the leaderboards I was comparing against.</p>
+<p>This is the full story, with every detail: the setup, the three failures and their fixes, the numbers, what didn't work, the free-tier problems, and what is still wrong.</p>
 <p><strong>Links:</strong> <a href="https://huggingface.co/spaces/aafimalek2032/five-letters">live demo</a> (runs in your browser) · <a href="https://doi.org/10.5281/zenodo.24116756">paper</a> · <a href="https://github.com/Aafimalek/wordle-rl">code and data</a> · <a href="https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m">model</a></p>
+<p><strong>The short version</strong></p>
+<ul>
+<li>A 270M-parameter model, trained only on free GPUs, wins 97% of WordleBench games with dictionary-limited decoding (GPT-5: 99%), 96% of Jeffers games (GPT-5: 100%) and 98.6% of 500 TextArena games.</li>
+<li>With no help at all, under the leaderboard's own rules, it wins 94% of WordleBench games. That is the score listed for gpt-5-mini.</li>
+<li>Its losses never came from strategy. They came from three things, found one after the other by reading lost games: memorising answers, not being able to spell, and typing the same rejected word again and again.</li>
+<li>Each fix was a small change to the training data, not a new algorithm. Reinforcement learning did not help.</li>
+<li>Both public Wordle leaderboards I checked accept non-words as guesses. On the same words, that one rule moves my model's score by 7 to 11 points.</li>
+<li>Total compute cost: $0.</li>
+</ul>
 <hr />
-<h2>Why Wordle is a good test</h2>
-<p>Wordle has complete, simple rules. You get six guesses to find a hidden five-letter word. After each guess, every letter is marked green (right letter, right place), yellow (in the word, somewhere else) or grey (not in the word).</p>
-<p>The optimal strategy is solved: 3.4212 guesses on average over the 2,315 classic answers, winning every game. And you don't even need strategy to win most games. In my measurement, a player that simply guesses <em>any</em> dictionary word that fits every clue so far wins 98.5% of the time.</p>
-<p>So when a language model loses at Wordle, the interesting question is which part it fails at. For a language model there are two parts:</p>
+<h2>Part 1: The setup</h2>
+<h3>Why Wordle is a good test</h3>
+<p>Wordle has complete, simple rules. You get six guesses to find a hidden five-letter word. After each guess, every letter is marked green (right letter, right place), yellow (in the word, somewhere else) or grey (not in the word). Repeated letters follow an official rule: greens are assigned first, then a guessed letter is yellow only while the answer still has an unmatched copy of it.</p>
+<p>The game is solved. The optimal strategy needs 3.4212 guesses on average over the 2,315 classic answers and wins every game. And you don't even need strategy to win most games: in my measurement, a player that simply guesses <em>any</em> dictionary word that fits every clue so far wins 98.5% of games, with 4.07 guesses per win.</p>
+<p>So when a language model loses at Wordle, the interesting question is which part it fails at. For a language model, there are two parts:</p>
 <ol>
-<li><strong>Reasoning about the clues:</strong> which letters are where, which are out.</li>
-<li><strong>Writing a real word letter by letter.</strong> This is not trivial for a model that reads and writes <em>tokens</em>, not letters. "CRANE" is one or two tokens to the model, not five characters.</li>
+<li><strong>Reasoning about the clues:</strong> which letters are where, and which are out.</li>
+<li><strong>Writing a real word, letter by letter.</strong> This is harder than it sounds for a model that reads and writes <em>tokens</em>, not letters. To the model, "CRANE" is one or two tokens, not five characters.</li>
 </ol>
 <p>The second part turned out to matter far more than I expected.</p>
-<h2>The rules I set for myself</h2>
-<p>Before training anything, I froze an evaluation protocol, because small models are easy to fool yourself with.</p>
+<h3>The model</h3>
+<p>I used Gemma 3 270M, the instruction-tuned version, and trained all of its weights.</p>
+<p>Out of the box, small models can't play this game at all under a strict protocol, because they almost never produce a valid guess in the required format. On the 463-word development set:</p>
 <ul>
-<li><strong>A strict rule.</strong> Every model output uses a turn. If the guess isn't one of the 12,972 words in the Wordle dictionary, it gets no feedback and still uses the turn.</li>
-<li><strong>Separate word sets.</strong> A 534-word <em>selection</em> set chose checkpoints and recipes. A 463-word <em>heldout</em> set checked the selection set. The test sets (WordleBench, the Jeffers benchmark, 500 rare answers and TextArena's Wordle environment) were scored <strong>once</strong>, for a model declared in advance.</li>
-<li><strong>Decisions written before results.</strong> Before each training round, I wrote down what the round tested and what I would do for each possible result. That stops you from picking whatever number looks best afterwards.</li>
-<li><strong>An independent audit.</strong> A separate script replays every saved game with its own implementation of the Wordle rules and checks every win. Every number reported here passed it.</li>
+<li>Gemma 3 270M (untrained): 0.0% of games won.</li>
+<li>SmolLM2-360M-Instruct: 0.2%.</li>
+<li>Qwen3-0.6B (thinking off): 0.0%.</li>
 </ul>
-<p>Everything ran on Kaggle's free tier: two T4 GPUs per session and a weekly quota of about 30 GPU hours. Total cost: $0.</p>
-<h2>The method: read the lost games, then fix one thing</h2>
+<p>After the same first round of training, SmolLM2-135M reached 23.3%, SmolLM2-360M 33.7% and Gemma 3 270M 55.7%. So I continued with Gemma.</p>
+<h3>The prompt</h3>
+<p>Each turn, the model sees the rules, the board so far and the number of turns left. Letters are spaced out, so that each letter is its own token. The model answers with a short note on what it knows, then its guess:</p>
+<pre><code>Turn 3: C R O N K -&gt; X G G G X
+Turns left: 3
+
+&lt;state&gt;fixed: _ R O N _ | has: - | out: C E K L M S W&lt;/state&gt;
+&lt;guess&gt;F R O N D&lt;/guess&gt;
+</code></pre>
+<p>G, Y and X stand for green, yellow and grey. If a guess is rejected, the board shows it like this: <code>S A T O N -&gt; INVALID (not in word list)</code>.</p>
+<h3>Compute: free GPUs only</h3>
+<p>Everything ran on Kaggle's free tier: notebook sessions with two NVIDIA T4 GPUs and a weekly quota of about 30 GPU hours. I launched sessions from my laptop with a small script that sends a queue of commands to each GPU, so each session trained two models side by side and then evaluated them. Across the project, the recorded sessions add up to about 31 hours. Total cost: $0.</p>
+<h3>Training settings</h3>
+<ul>
+<li>Optimiser: AdamW, learning rate 5e-5 with 100 warm-up steps and cosine decay, no weight decay, gradient clipping at 1.0.</li>
+<li>Batch: 64 samples per step (16 × 4 gradient accumulation), one epoch, at most 512 tokens per sample. A model's reply has a median length of 44 tokens.</li>
+<li>Precision: weights in fp32, compute in fp16 only after a startup check shows that fp16 and fp32 agree. More on why below.</li>
+<li>Checkpoint choice: the checkpoint with the best win rate on the selection set, checked every 500 steps.</li>
+</ul>
+<h2>Part 2: The rules I set for myself</h2>
+<p>Small models are easy to fool yourself with, so before training anything, I froze an evaluation protocol.</p>
+<p><strong>A strict rule.</strong> The dictionary has 2,315 answers and 10,657 more allowed guesses: 12,972 words in total, with fixed checksums. Every model output uses a turn. If an output has no guess tag, or if its guess isn't one of the 12,972 words, it gets no feedback and still uses the turn. Decoding is greedy, so the same word always gives the same game. My feedback code agrees with TextArena's game engine on 10,000 test pairs.</p>
+<p><strong>Separate word sets:</strong></p>
+<ul>
+<li><strong>Train</strong>, 1,752 words: the answers of the training games.</li>
+<li><strong>Select</strong>, 534 words: chooses checkpoints, recipes and the final model.</li>
+<li><strong>Heldout</strong>, 463 words: a second development set, to check select.</li>
+<li><strong>WordleBench</strong>, 100 words, and <strong>Jeffers</strong>, 50 words: test sets with published frontier scores.</li>
+<li><strong>Rare</strong>, 500 words: a test set of answers outside the classic answer list.</li>
+<li><strong>TextArena Wordle-v0</strong>, 500 games: a test set from a public game environment. Its "clean" subset is the 109 games whose secret word was never a training answer.</li>
+</ul>
+<p>No training game ever used a WordleBench or Jeffers word as its answer. The test sets were scored <strong>once</strong>, for a model declared in advance.</p>
+<p><strong>Decisions written before results.</strong> Before each training round, I wrote down what the round tested and what I would do for each possible result. This stops you from choosing whatever number looks best afterwards, and it makes negative results easy to report.</p>
+<p><strong>An independent audit.</strong> A separate script, with its own implementation of the rules, replays every saved game from the model's raw outputs. It checks every piece of feedback and every win. Every number in this article passed it, except TextArena's, which TextArena's own engine scores.</p>
+<p><strong>Metrics:</strong> the win rate with a 95% bootstrap confidence interval, the mean number of guesses in won games, the share of turns that are invalid, and the share of guesses that contradict clues the model already had. To compare two models on the same words, I used an exact McNemar test on the games only one of them won.</p>
+<h2>Part 3: The teacher</h2>
+<p>The training games come from a solver: a lookahead beam search over the full vocabulary. Opening with SALET, it averages 3.4216 guesses and wins all 2,315 classic games, within 0.0004 of the proven optimum.</p>
+<p>One complication: TextArena's Wordle rejects SALET, and more than a third of the dictionary (it accepts 8,019 of the 12,972 words). So the training games use a shared vocabulary of 8,035 words (TextArena's 8,019 plus the 16 answers it doesn't list) and open with CRATE instead, which averages 3.4281 guesses with no losses.</p>
+<p>The games also include off-script states, so the model learns to continue after mistakes: random openings, 10% random moves and some invalid turns.</p>
+<h2>Part 4: The method, a loop of diagnosis and targeted data</h2>
 <p>The approach turned into a loop:</p>
 <ol>
 <li>Train a round.</li>
@@ -42,29 +90,52 @@ Copy everything BELOW the line into the story body.</div>
 <li>Write training data for that failure only.</li>
 </ol>
 <figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/overview.png" alt="The method: each training round answers a diagnosis of the lost games of the round before it."><figcaption>The method: each training round answers a diagnosis of the lost games of the round before it.</figcaption></figure>
-<p>The loop found three failures, one after the other. Each became visible only after the previous one was fixed.</p>
-<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/progress.png" alt="Win rate on the 534-word selection set after each training round, model alone and with word-level decoding."><figcaption>Win rate on the 534-word selection set after each training round, model alone and with word-level decoding.</figcaption></figure>
-<h2>Failure 1: it memorised the answers instead of reading the clues</h2>
-<p>I started with imitation learning. A solver (a lookahead search that averages 3.4216 guesses, within 0.0004 of the proven optimum) played thousands of games, and the model learned to copy its moves. Each prompt shows the board so far in spaced letters, and the model answers with a short note on what it knows, then a guess:</p>
-<pre><code>Turn 3: C R O N K -&gt; X G G G X
-Turns left: 3
--&gt; &lt;state&gt;fixed: _ R O N _ | has: - | out: C E K L M S W&lt;/state&gt;
-   &lt;guess&gt;F R O N D&lt;/guess&gt;
-</code></pre>
-<p>The first model won 20 of 20 games on words it had trained on, but only 13 of 20 on new words. It had memorised the answer list. Adding games on 1,610 extra common words fixed that part.</p>
-<p>A subtler problem remained. The optimal solver often plays "probe" words that deliberately break the clues to gather information. A small model can't learn when that's a good idea, so 49% of its guesses contradicted clues it already had. I switched to a teacher that only plays words consistent with every clue. That cut contradictions to 7.5%.</p>
-<h2>Failure 2: it followed the clues but couldn't spell</h2>
-<p>After that fix, the model reasoned well. Of the games where it never wrote an invalid word, it won 269 of 272. Its problem was elsewhere:</p>
+<p>The loop found three failures, one after the other. Each one only became visible after the previous one was fixed.</p>
+<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/progress.png" alt="Win rate on the 534-word selection set after each training round, for the model alone and with word-level decoding."><figcaption>Win rate on the 534-word selection set after each training round, for the model alone and with word-level decoding.</figcaption></figure>
+<h2>Part 5: Failure 1, it memorised the answers</h2>
+<p>The first model trained only on the solver's games for the 1,752 training answers. It won 20 of 20 games on words it had trained on, but only 13 of 20 on new words, and 55.7% of the heldout games. Every invalid turn on new words was an invented word. It had memorised the answer list.</p>
+<p>Adding games on 1,610 extra common words (none of them test answers) raised heldout to 64.6%.</p>
+<p>A subtler problem remained. The optimal solver often plays "probe" words that deliberately break the clues, to gather information. A small model can't learn when that is a good idea, so 49% of its guesses contradicted clues it already had. I switched to a <strong>clue-consistent teacher</strong>, a solver that only plays words that fit every clue. That cut contradictions to 7.5%, and raised heldout from 58.5% (the comparable earlier model) to 61.8%.</p>
+<h2>Part 6: A detour, limiting guesses to real words</h2>
+<p>Before going further, I tested how much a simple decoding aid helps. If the model can only output dictionary words, it can't lose a turn to a non-word.</p>
+<p>There are two ways to do this:</p>
 <ul>
-<li>Every invalid turn was a well-formed five-letter <strong>non-word</strong>.</li>
+<li><strong>A token-level limit</strong> blocks any next token that can't lead to a dictionary word. It commits to the most likely allowed first letters, then must finish whatever word starts with them.</li>
+<li><strong>Word-level decoding</strong> runs a beam search (width 16) over a tree of all 12,972 dictionary words, written letter by letter. It returns the whole word that the model itself rates highest, skipping words already played. The code never looks at the clues: the model still decides which word fits.</li>
+</ul>
+<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/decoding.png" alt="Heldout win rate for two teachers, with the model alone, with a token-level limit and with word-level decoding."><figcaption>Heldout win rate for two teachers, with the model alone, with a token-level limit and with word-level decoding.</figcaption></figure>
+<p>Word-level decoding added 32 to 36 points over the model alone, and 17 to 24 over the token-level limit. No training change in the whole project had an effect that large. With word-level decoding, the clue-consistent teacher didn't win more games than the optimal one, but it cut clue contradictions from 44% to 9% and saved about 0.2 guesses per win. Word-level results were identical game for game on a T4 GPU and on a laptop CPU.</p>
+<p>From here on, I report two numbers for every model: the <strong>model alone</strong>, and <strong>with word-level decoding</strong>. They answer different questions, so I never mix them.</p>
+<h2>Part 7: Failure 2, it followed the clues but couldn't spell</h2>
+<p>Next, I read every lost game of the model alone on the selection set. The model's reasoning was fine: of the 272 games in which it never wrote an invalid word, it won 269. Its problem was elsewhere:</p>
+<ul>
+<li>Every invalid turn was a well-formed, five-letter <strong>non-word</strong>.</li>
 <li>78% of those non-words fit every clue, and 38% were one letter away from the answer.</li>
 <li>97.6% of the real words it played were words it had seen as training targets, and those covered only 6,871 of the 12,972 dictionary words.</li>
+<li>Its win rate rose with how often the answer had appeared as a training target: 12.5% for answers never seen, 43.6% for 1 to 9 times, 72.4% for 10 to 99 times and 77.1% for 100 times or more.</li>
 </ul>
-<p>The model knew the <em>pattern</em> the answer had to match. It couldn't recall a <em>real word</em> with that pattern. Its win rate rose with how often the answer had appeared in training: 12.5% for words it had never seen as a target, 77% for words seen 100 times or more.</p>
-<p>So the fix wasn't more games. It was a <strong>spelling drill</strong>: thousands of boards, each paired with one real, common word that fits it. Every one of 5,557 common words was a target the same number of times, so the model practised the whole vocabulary evenly.</p>
-<p>Two rounds of the drill raised the model-alone win rate from <strong>62.0% to 83.1%</strong> (mean of three training seeds). That was a bigger jump than any change to the teacher or the training method.</p>
-<h2>Failure 3: when the game said "not a word", it wrote the same word again</h2>
-<p>After the drill, the model rarely wrote a non-word. But when it did, something strange happened. Here is a real game, with the hidden word BATON:</p>
+<p>The model knew the <em>pattern</em> the answer had to match. It couldn't recall a <em>real word</em> with that pattern.</p>
+<h3>The spelling drill</h3>
+<p>The fix was not more games. It was a <strong>spelling drill</strong>. Each drill sample is a board plus one real, common word that fits it, in the same prompt format. The design details mattered:</p>
+<ul>
+<li><strong>Balanced.</strong> The targets are the 5,557 common English words with a word-frequency (Zipf) score of 2.0 or more, and every one is a target the same number of times. So the model practises the whole vocabulary evenly, not just the frequent words.</li>
+<li><strong>Fair.</strong> Boards are built only around training-side hidden words, never around a development or test answer.</li>
+<li><strong>Mixed.</strong> Half of the earlier teacher games are replayed alongside, so the model keeps its game play.</li>
+<li><strong>Round v7:</strong> 30 samples per word, boards of 1 to 4 guesses (166,710 drill samples plus 125,633 replayed ones).</li>
+<li><strong>Round v8:</strong> 40 samples per word, boards of 1 to 5 guesses, and up to two rejected non-words per board (222,280 plus 125,633). I made the boards deeper because v7's invalid turns were concentrated in turns 4 to 6.</li>
+</ul>
+<h3>Results of the drill</h3>
+<p>The drill raised the model-alone win rate on the selection set from <strong>62.0% to 74.9%</strong> (v7) and then <strong>83.1%</strong> (v8, the mean of three training runs with different seeds: 82.2%, 83.3% and 83.9%, standard deviation 0.9). With word-level decoding, it reached 98.4%.</p>
+<p>On the same 534 words, the first v8 model won 70 games that v7 lost, and lost 31 that v7 won: a clear improvement (p &lt; 0.001). One more round of the same drill on fresh boards (v9) gave little: against the best v8 run it won 29 more games and lost 24 (p = 0.58, which is noise).</p>
+<p>The training curves were interesting too. Each drill round <em>starts below</em> the model it began from, then passes it. v7 fell to 41.6% at its first checkpoint, from 62.0%. v8 runs fell to 57 to 63%, from 74.9%. They only overtook their starting model after about 3,000 steps.</p>
+<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/curves.png" alt="Selection-set win rate during training. Drill rounds start below their base and climb; the recovery round (right) peaks early."><figcaption>Selection-set win rate during training. Drill rounds start below their base and climb; the recovery round (right) peaks early.</figcaption></figure>
+<h3>An honest disclosure about the drill</h3>
+<p>Drill targets can be any common English word, so 527 of the 534 selection words, and 147 of the 148 leaderboard words, appear as spelling targets on boards built around <em>other</em> hidden words. No test word is ever the <em>answer</em> of a training game.</p>
+<p>To measure what this choice does, I also trained a strict variant (v7s) in which no development or test word is ever a target. It scored 56.2%, <em>below</em> its starting model. When the drill never shows a word, the model spells that word worse than before. Two explanations fit: spelling is learned word by word, or the model learned that about 800 words (exactly the likely answers) are never the right output. My data can't tell them apart, so every drill-based number depends on this disclosed choice.</p>
+<h2>Part 8: Failure 3, when the game said "not a word", it wrote the same word again</h2>
+<p>After the drill, the model rarely wrote a non-word. Invalid turns were rare in turns 1 to 3 and grew late in the game, when fewer words fit the clues.</p>
+<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/invalid_by_turn.png" alt="Share of turns that are non-words, by turn number, among games still running."><figcaption>Share of turns that are non-words, by turn number, among games still running.</figcaption></figure>
+<p>But when it did write a non-word, something strange happened. Here is a real game, with the hidden word BATON:</p>
 <pre><code>CRATE  -&gt; X X Y Y X
 TALON  -&gt; Y G X G G
 SATON  -&gt; INVALID (not in word list)
@@ -72,88 +143,152 @@ SATON  -&gt; INVALID (not in word list)
 SATON  -&gt; INVALID (not in word list)
 SATON  -&gt; INVALID (not in word list)
 </code></pre>
-<p>The prompt shows the rejection, but the model writes SATON again and again until the game ends. This wasn't a one-off. After a first non-word, one model's next turn was <strong>the same word 76 times and a different real word only 8 times</strong>. Most of its lost games were one rejected word, repeated.</p>
-<p>The reason is a classic problem in imitation learning, called covariate shift. The model had only ever trained on states that a good player creates. It had never seen a board on which <em>its own</em> first choice had just been rejected, so it didn't know what to do there.</p>
+<p>The prompt shows the rejection, but the model's notes don't change, and it writes SATON again until the game ends. This was the rule, not the exception:</p>
+<ul>
+<li>The first v8 model wrote a non-word in only 91 of 534 games, and lost every one of them. After its first non-word, its next turn was <strong>the same word 88 times and a different real word once</strong>.</li>
+<li>The v8 run I later used as the base: the same word 76 times, a real word 8 times. 71 of its 86 losses were one non-word, repeated.</li>
+</ul>
+<p>This also explained two earlier numbers. The retry-3 rule (a rejected word doesn't use a turn, up to three times in a row) only added about 2 points, because the model spent its retries on the same word. And under the leaderboard rule, where the same non-word <em>gets</em> colours, the board changes and the model moves on, so it scored about 11 points higher.</p>
+<p>Why does this happen? It's a classic problem in imitation learning called <strong>covariate shift</strong>. The model had only ever trained on states that a good player creates. The drill boards did contain rejected words, but they were random near-misses, never the word the model itself was about to write. It had never seen a board on which <em>its own</em> first choice had just been rejected.</p>
+<h3>The recovery round</h3>
 <p>The fix, in the spirit of an imitation-learning method called DAgger, was to train on the model's own mistakes:</p>
 <ol>
-<li>Let the model play about 8,500 words that are never used for evaluation.</li>
-<li>Every time the game rejects one of <em>its own</em> non-words, keep that exact board, rejection included.</li>
-<li>Label it with a real word that fits the clues, and train on those boards.</li>
+<li><strong>Let the model play.</strong> The base model played 8,546 hidden words alone: every valid word that is neither a test or development answer nor an answer it had trained on. Each of the two GPUs took half (4,273 words). These words are rarer than the answer lists, so the base won only 1,340 and 1,403 of them.</li>
+<li><strong>Keep its own mistakes.</strong> Each first time the game rejected one of the model's own non-words, with a turn left, I kept that exact board, rejection included. There were 2,261 and 2,162 such moments.</li>
+<li><strong>Label them.</strong> Each moment became up to four training samples, with a real word that fits the clues as the target. One of the targets is always the hidden word. With probability 0.3, the board shows the rejection twice, as when the model repeats it. The data generator refuses to run if a game's answer is a development or test word.</li>
+<li><strong>Train briefly.</strong> 3,077 and 2,879 recovery samples, mixed with 4% of the v8 data as replay (about 22,000 samples in total), for two epochs at a lower learning rate (2e-5, 30 warm-up steps), checking the selection set every 100 steps. Each run took about 30 minutes on one T4.</li>
 </ol>
-<p>That gave about 3,000 new training samples per run, trained for half an hour on one free T4.</p>
+<p>One detail: my written plan said 4,000 hidden words. A quick laptop check showed that would give too few samples, so I changed it to all 8,546 before launch, before any result existed, and recorded the change.</p>
+<p>The recovery round behaved differently from the drill: it started at the level of its base and peaked early, at step 300 of 688.</p>
+<h3>Results of the recovery round</h3>
 <figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/losses.png" alt="Lost games by cause. Before the recovery round, most losses are one rejected word written again and again; after it, few are."><figcaption>Lost games by cause. Before the recovery round, most losses are one rejected word written again and again; after it, few are.</figcaption></figure>
-<p>The result:</p>
 <ul>
-<li>After a first non-word, the model now writes a real word 51 times and repeats the rejected one 32 times (before: 8 against 76).</li>
+<li>After a first non-word, the model now writes a real word 51 times and repeats the rejected one 32 times (before: 8 and 76).</li>
+<li>Games with exactly one invalid turn are now won 39 of 42 times (before: 3 of 8).</li>
 <li>Losses that consist of one repeated non-word fell from <strong>71 to 15</strong>.</li>
-<li>Model-alone wins on the selection set rose from <strong>83.9% to 88.0%</strong>. That is a statistically significant gain (paired test, p = 0.013), and the heldout set, which played no part in choosing the model, rose by about the same amount (84.7% to 88.3%).</li>
+<li>Model-alone wins on the selection set rose from <strong>83.9% to 88.0%</strong>. On the same words, the new model won 47 games the base lost and lost 25 that the base won (p = 0.013). A second run with a different seed scored 87.3% (36 against 18, p = 0.020), and the two runs don't differ significantly from each other (p = 0.70).</li>
+<li>The checkpoint was chosen on the selection set, so that score is slightly optimistic. The heldout set played no part in this round and rose by about the same amount: 84.7% to 88.3%.</li>
 </ul>
-<h2>What I found inside two public leaderboards</h2>
-<p>To compare with frontier models, I read the scoring code of the two public Wordle leaderboards whose word lists are published: WordleBench and the Jeffers Wordle-AI-Benchmark.</p>
+<p>Two problems remain. The model now writes a first non-word a bit more often (in 101 games, against 85). And games with three or more invalid turns are still always lost (0 of 41). In most of those, the model no longer repeats one word: it tries several <em>different</em> non-words. The gap left is spelling again, under pressure late in the game.</p>
+<h2>Part 9: What I found inside two public leaderboards</h2>
+<p>To compare with frontier models, I read the scoring code of the two public Wordle leaderboards whose word lists are published.</p>
 <p><strong>Neither checks guesses against a dictionary.</strong></p>
 <ul>
-<li>WordleBench scores whatever text is inside the guess tag. There is no word list.</li>
-<li>Jeffers accepts any five lowercase letters. Its code <em>imports</em> a dictionary check but never calls it.</li>
+<li><strong>WordleBench</strong> (<code>main.py</code>, commit 79436c8) scores whatever text is inside the guess tag. There is no word list and no length check. Its yellow rule also ignores repeated letters, so it is simpler than real Wordle. Models run through OpenRouter with reasoning set to high.</li>
+<li><strong>Jeffers Wordle-AI-Benchmark</strong> (<code>lib/wordle-engine.ts</code>, commit a79acdb) accepts any five lowercase letters. Its code <em>imports</em> a dictionary check but never calls it. Malformed or repeated guesses are replaced by an unused starter word.</li>
+<li><strong>SnorkelWordle</strong> publishes scores but not its word list, so I couldn't run on it.</li>
 </ul>
-<p>So on both leaderboards a misspelled guess like SATON still gets colours, and the game moves on. Under my strict rule it gets nothing.</p>
+<p>So on both leaderboards, a misspelled guess like SATON still gets colours, and the game moves on. Under my strict rule, it gets nothing.</p>
 <p>That matters a lot, because misspelling was exactly my model's weakness. The same model, on the same words, scores very differently depending on that one rule:</p>
 <figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/rules.png" alt="The same model on the same 534 words under three rules: strict, retry-3, and the leaderboards' rule where non-words get colours."><figcaption>The same model on the same 534 words under three rules: strict, retry-3, and the leaderboards' rule where non-words get colours.</figcaption></figure>
-<p>Before the recovery round, the gap between the two rules was 10.5 points. After it, the gap shrank to 7.5, which agrees with the diagnosis: the leaderboards' rule hides exactly the failure the recovery round fixed.</p>
-<p>So I report three labelled rules everywhere: <strong>strict</strong> (my headline), <strong>retry-3</strong> (a rejected non-word doesn't use a turn, at most three times in a row) and <strong>open-vocab</strong> (the leaderboards' rule). I think any game benchmark for language models should state this rule, because it can move a score by 10 points.</p>
-<h2>The final test, scored once</h2>
-<p>The final model was chosen on the selection set by a rule I wrote before the last training round, and declared before any test set was scored.</p>
+<p>Before the recovery round, the gap between the strict rule and the leaderboard rule was 10.5 points. After it, the gap shrank to 7.5, which agrees with the diagnosis: the leaderboard rule hides exactly the failure the recovery round fixed.</p>
+<p>So I report three labelled rules everywhere:</p>
+<ul>
+<li><strong>Strict</strong> (my headline): a non-word gets no feedback and uses the turn.</li>
+<li><strong>Retry-3:</strong> a non-word doesn't use a turn, at most three times in a row.</li>
+<li><strong>Open-vocab:</strong> any five letters a to z get feedback and use a turn, like the leaderboards. Malformed output still loses the turn.</li>
+</ul>
+<p>I think every game benchmark for language models should state this rule, because it can move a score by 10 points.</p>
+<h2>Part 10: Choosing the final model before looking at the test</h2>
+<p>Each choice used a rule written before its result existed:</p>
+<ul>
+<li><strong>After v8:</strong> if the v8 mean beat v7 by at least 2 points, with at least 96% using word-level decoding, v8 would be the final recipe. It did (83.1% and 98.4%).</li>
+<li><strong>v9 against v8:</strong> v9 would replace the best v8 run only if it beat the v8 mean by 2 points, so it needed 85.15%. It scored 84.8%, so the best v8 run (83.9%) became the base for the recovery round.</li>
+<li><strong>v10 against its base:</strong> the better recovery run would become the final model if it gained at least 2 points alone (at least 85.9%) and lost at most 1 point with word-level decoding (at least 97.7%). It scored 88.0% and 99.1%, so it became the final model.</li>
+</ul>
+<p>I declared it in writing before any test set was scored. The test then ran once, in a single Kaggle session of 54 minutes (after about an hour in Kaggle's queue).</p>
+<h2>Part 11: The final test, scored once</h2>
 <figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/results.png" alt="Final test on WordleBench and Jeffers: the model alone under two rules, with word-level decoding, and the cited GPT-5 score."><figcaption>Final test on WordleBench and Jeffers: the model alone under two rules, with word-level decoding, and the cited GPT-5 score.</figcaption></figure>
+<p><strong>WordleBench, 100 words</strong></p>
 <ul>
-<li><strong>WordleBench (100 words)</strong>: alone, strict rule: 87.0%; alone, leaderboard rule: 94.0%; word-level decoding: <strong>97.0%</strong>; gpt-5 (cited): 99%</li>
-<li><strong>Jeffers (50 words)</strong>: alone, strict rule: 74.0%; alone, leaderboard rule: 88.0%; word-level decoding: <strong>96.0%</strong>; gpt-5 (cited): 100%</li>
-<li><strong>TextArena (500 games)</strong>: alone, strict rule: 85.8%; word-level decoding: <strong>98.6%</strong></li>
-<li><strong>Rare answers (500 words)</strong>: alone, strict rule: 42.2%; alone, leaderboard rule: 51.4%; word-level decoding: 76.6%</li>
+<li>Model alone, strict rule: 87.0% (3.79 guesses per win)</li>
+<li>Model alone, retry-3: 87.0%</li>
+<li>Model alone, leaderboard rule: 94.0%</li>
+<li>Word-level decoding: <strong>97.0%</strong> (3.68 guesses per win)</li>
+<li>GPT-5, cited from the leaderboard: 99% (3.59 guesses per win)</li>
 </ul>
-<p><strong>Word-level decoding</strong> limits each guess to dictionary words that the model ranks itself. The code never looks at the clues; the model still decides which real word fits. It's an aid, so I always report it next to the model alone.</p>
-<p>A few things stand out:</p>
+<p><strong>Jeffers Wordle-AI-Benchmark, 50 words</strong></p>
 <ul>
-<li><strong>Under the leaderboard's own rule, the model alone wins 94% of WordleBench games.</strong> That's the score listed for gpt-5-mini, and in the range of many frontier models. With very different harnesses and prompts, it isn't a perfectly fair comparison, but it's the same 100 words.</li>
-<li><strong>Jeffers is harder alone</strong> (74%), but it has only 50 games, so one game is 2 points.</li>
+<li>Model alone, strict rule: 74.0% (3.86 guesses per win)</li>
+<li>Model alone, retry-3: 80.0%</li>
+<li>Model alone, leaderboard rule: 88.0%</li>
+<li>Word-level decoding: <strong>96.0%</strong> (3.75 guesses per win)</li>
+<li>GPT-5, cited: 100% (3.58 guesses per win)</li>
+</ul>
+<p><strong>TextArena Wordle-v0, 500 games</strong></p>
+<ul>
+<li>Model alone: 85.8% (clean subset of 109 games: 84.4%)</li>
+<li>Word-level decoding: <strong>98.6%</strong> (clean subset: 97.2%)</li>
+</ul>
+<p><strong>Rare answers, 500 words</strong></p>
+<ul>
+<li>Model alone: 42.2% strict, 46.0% retry-3, 51.4% leaderboard rule</li>
+<li>Word-level decoding: 76.6% (4.60 guesses per win)</li>
+</ul>
+<p>What these numbers say:</p>
+<ul>
+<li><strong>Under the leaderboard's own rule, the model alone wins 94% of WordleBench games.</strong> That is the score listed for gpt-5-mini, and inside the 94 to 98% range of many frontier models. The harnesses, prompts and settings differ, so it isn't a perfectly fair comparison, but it is the same 100 words.</li>
+<li><strong>WordleBench agrees with the selection set</strong> (87.0% against 88.0% alone).</li>
+<li><strong>Jeffers is harder alone</strong> (74%), but it has only 50 games, so one game is 2 points, and the confidence interval reaches 86%.</li>
 <li><strong>Rare words are the real weakness.</strong> The model's word knowledge is concentrated on common words.</li>
-<li>Compared with an earlier final model from the start of the project, the model alone gained <strong>27 points on WordleBench</strong> (60% to 87%).</li>
+<li><strong>Progress over the project:</strong> an earlier final model, from before the drill, won 60.0% of WordleBench and 54.0% of Jeffers games alone (95.0% and 86.0% with word-level decoding). The spelling drill and the recovery round added 27 and 20 points to the model alone.</li>
 </ul>
-<p>The paper's appendix shows every WordleBench game the final model lost. Of its 13 losses, 10 still contain non-words, and in 9 of those a rejected word is written again. So the recovery round reduced that failure but didn't remove it. The other 3 losses are traps: sets of real words that differ in one letter, like BONDS, BONGS and BONKS.</p>
-<h2>What didn't work</h2>
+<p>One more gap remains: efficiency. Even with word-level decoding, the model needs about 3.7 guesses per win, against 3.42 for the solver. It rarely plays the information-gathering probe words that make the solver fast.</p>
+<figure><img src="https://raw.githubusercontent.com/Aafimalek/wordle-rl/main/docs/blog/img/guesses.png" alt="How many guesses each game took on the development set: the solver, the final model alone, and with word-level decoding."><figcaption>How many guesses each game took on the development set: the solver, the final model alone, and with word-level decoding.</figcaption></figure>
+<h2>Part 12: Every game it lost</h2>
+<p>The paper's appendix shows every WordleBench game the final model lost, chosen by rule, not by hand.</p>
+<ul>
+<li><strong>Alone, it lost 13:</strong> ANGEL, AWFUL, BANAL, BONUS, EAGLE, LASER, PHOTO, SONIC, TOUCH, USING, USURP, WATER and YACHT. Ten of them contain non-words, and in nine of those a rejected word is written again (TOUCH: STUCH four times). So the recovery round reduced that failure but didn't remove it, especially on words outside its training.</li>
+<li><strong>The other three are traps:</strong> sets of real words that differ in one letter. For BONUS it played BONDS, BONGS, BONKS. For WATER: EATER, TATER, RATER, PATER. For LASER (which isn't even a Wordle answer word): WAGER, BAKER, SAFER, MASER.</li>
+<li><strong>With word-level decoding, it lost exactly those three trap games</strong>, and nothing else.</li>
+<li><strong>Seven games were won alone after a rejected word:</strong> ACORN, CLEAR, GUESS, MOURN, THEIR, THRUM and TOOTH. After the rejection, the model wrote a different, real word.</li>
+</ul>
+<h2>Part 13: What didn't work</h2>
 <p>Negative results are part of the story, so here they are:</p>
 <ul>
-<li><strong>Reinforcement learning (GRPO).</strong> It reduced invalid turns a little, but never raised the win rate on held-out words. The likely reason: rollouts on mostly memorised answers gave a quarter of the training groups no signal at all.</li>
-<li><strong>A stronger teacher</strong> that prefers common words and plays probe words on traps: no better for the model alone.</li>
-<li><strong>Writing whole words</strong> instead of spaced letters: fewer invalid words, but half the guesses ignored the clues, and wins dropped to 44.9%.</li>
-<li><strong>Self-distillation</strong> of the model's own best games: +3 points alone, but it hurt the decoding-aided score, so I dropped it.</li>
+<li><strong>Reinforcement learning (GRPO).</strong> From an early model, it lowered invalid turns (23.3% to 19.4%), but heldout wins went down (64.6% to 61.8%). From a later model, none of six checkpoints beat the starting point (62.0% against 60.1 to 60.5%). The likely reason: rollouts on mostly memorised answers, so a quarter of the training groups had no learning signal at all.</li>
+<li><strong>A stronger teacher</strong>, one that prefers common words and plays probe words on trap sets, scored 61.2% alone, no better than before, and needed more guesses per win (4.08 against 3.91 with word-level decoding).</li>
+<li><strong>Writing each guess as one word</strong> instead of spaced letters cut invalid turns to about 5%, but half of the guesses ignored the clues, and wins dropped to 44.9%.</li>
+<li><strong>Self-distillation</strong>, training on the model's own word-level wins, added 3 points alone but lowered word-level decoding from 94.9% to 92.7%, below the limit I had set in advance, so I dropped it.</li>
 </ul>
 <p>The biggest gains came from small, targeted data changes, not from new algorithms.</p>
-<h2>Engineering on free GPUs</h2>
-<p>Free tiers have sharp edges. A few that cost me time:</p>
+<h2>Part 14: Engineering on free GPUs</h2>
+<p>Free tiers have sharp edges. These cost me time:</p>
 <ul>
-<li><strong>T4 GPUs have no fast bf16, and Gemma 3 can overflow in fp16.</strong> I kept weights in fp32 and checked fp16 against fp32 on real batches before trusting it.</li>
-<li><strong>Kaggle's 20 GB output disk filled up with checkpoints.</strong> Large files moved to scratch disk, and every save now makes room first.</li>
-<li><strong>Hugging Face's free private storage (100 GB) filled up.</strong> Uploads then failed <em>without an error</em> and left a stale checkpoint. I evaluated that stale model by accident and had to retract those results. Uploads now skip optimiser state, retry, and log the real error.</li>
-<li><strong>Free sessions end without warning,</strong> so every job is resumable and every evaluation saves results game by game.</li>
+<li><strong>T4 GPUs have no fast bf16, and Gemma 3 can overflow in fp16.</strong> I kept the weights in fp32 and checked fp16 against fp32 on real batches before trusting it.</li>
+<li><strong>Kaggle's 20 GB output disk filled up</strong> with checkpoints. Large files moved to the scratch disk, and every save now makes room first.</li>
+<li><strong>Hugging Face's free private storage (100 GB) filled up</strong> with checkpoints that included optimiser state. Uploads then failed <em>without an error</em> and left a stale checkpoint. I evaluated that stale model by accident and had to retract those results. Uploads now skip optimiser state, retry, and log the real error, and evaluations load the session's own copy first.</li>
+<li><strong>Out-of-memory errors</strong> now halve the generation batch or the micro-batch, keeping the effective batch the same.</li>
+<li><strong>Free sessions end without warning</strong>, so every job resumes by itself, every evaluation saves its results game by game, and every session records its commit, library versions and GPUs.</li>
+<li><strong>Queues happen.</strong> The final test waited about an hour for a free GPU machine. I also pushed it twice by mistake once; the duplicate was cancelled straight away, and I logged it.</li>
 </ul>
-<p>Over the whole project, the recorded Kaggle sessions add up to about 31 hours.</p>
-<h2>Try it yourself</h2>
-<p>The <a href="https://huggingface.co/spaces/aafimalek2032/five-letters">live demo</a> runs the final model <strong>in your browser</strong>, with no server. Pick a hidden word and watch it play, notes and all. You can choose an 8-bit copy (440 MB, faster) or full precision (1.7 GB). I checked both against the paper on all 100 WordleBench words: the full-precision copy reproduces every recorded game exactly, and the 8-bit copy matches 83 of them. The demo also lets you replay every game from the paper's evaluations.</p>
+<h2>Part 15: Open, reproducible, and playable</h2>
+<p>Every number in the paper is generated by a script from the result files, and the audit script re-checks them by replaying the games, so the PDF can be rebuilt from the results folder.</p>
+<p>The <a href="https://huggingface.co/spaces/aafimalek2032/five-letters">live demo</a> runs the final model <strong>in your browser</strong>, with no server. Pick a hidden word and watch it play, notes and all, or replay any recorded game from the paper's evaluations. You can choose an 8-bit copy (440 MB, faster) or full precision (1.7 GB). I checked both against the paper on all 100 WordleBench words: the full-precision copy reproduces every recorded game exactly, with the same 87 wins, and the 8-bit copy matches 83 of them.</p>
 <p>Everything is open:</p>
 <ul>
 <li><strong>Paper:</strong> <a href="https://doi.org/10.5281/zenodo.24116756">doi.org/10.5281/zenodo.24116756</a></li>
-<li><strong>Code, word lists and every evaluation summary:</strong> <a href="https://github.com/Aafimalek/wordle-rl">github.com/Aafimalek/wordle-rl</a></li>
+<li><strong>Code, word lists and every evaluation summary:</strong> <a href="https://github.com/Aafimalek/wordle-rl">github.com/Aafimalek/wordle-rl</a> (archived at <a href="https://doi.org/10.5281/zenodo.24114970">doi.org/10.5281/zenodo.24114970</a>)</li>
 <li><strong>Model:</strong> <a href="https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m">huggingface.co/aafimalek2032/wordle-rl-gemma3-270m</a></li>
 <li><strong>Every game the model played</strong>, with its raw output, plus the training data of each round: <a href="https://huggingface.co/collections/aafimalek2032/five-letters-wordle-rl-6af332879e666b4001ede7ed">Hugging Face collection</a></li>
 </ul>
+<h2>Part 16: Limitations</h2>
+<ul>
+<li><strong>Different conditions from the leaderboards.</strong> The cited frontier scores come from other harnesses, prompts and sampling settings. The comparison uses the same words, not the same conditions.</li>
+<li><strong>Generalist against specialist.</strong> Frontier models play without any training for the game. Mine is trained for one game only.</li>
+<li><strong>Spelling targets.</strong> As disclosed above, the drill's targets include test answers as common words.</li>
+<li><strong>Reuse of the selection set.</strong> It chose checkpoints, recipes and the final model over several rounds, so the selection and heldout scores are optimistic. Only the final test is free of those choices. WordleBench and Jeffers were also scored twice earlier in the project, for older models; those results didn't choose any later recipe, but I report them anyway.</li>
+<li><strong>Seeds.</strong> The drill recipe has three runs and the recovery round two. Most earlier comparisons have one run, and differences of 2 to 3 points between them are within noise.</li>
+</ul>
 <h2>What I'd tell someone starting a project like this</h2>
 <ol>
-<li><strong>Read your failures, not just your scores.</strong> The aggregate win rate never told me "spelling" or "repeats a rejected word". Counting one simple event, <em>what does the model do on the turn after its first non-word?</em>, did.</li>
+<li><strong>Read your failures, not just your scores.</strong> The win rate never told me "spelling" or "repeats a rejected word". Counting one simple event did: <em>what does the model do on the turn after its first non-word?</em></li>
 <li><strong>Imitation learning needs the student's own mistakes.</strong> My spelling drill already contained rejected words, but they were random ones, not the model's own. Only training on states the model itself creates fixed the recovery problem.</li>
-<li><strong>Check the rules behind every number you compare against.</strong> Two leaderboards I trusted were measuring something easier than I assumed. Reading their code took an hour and changed how I report every result.</li>
+<li><strong>Check the rules behind every number you compare against.</strong> Two leaderboards I trusted measured something easier than I assumed. Reading their code took an hour and changed how I report every result.</li>
 <li><strong>Write your decisions down before the result exists.</strong> It's the cheapest protection against fooling yourself, and it makes negative results easy to report honestly.</li>
+<li><strong>Free compute is enough for real research,</strong> if every job can resume and every result can be re-checked.</li>
 </ol>
-<p>A 270M-parameter model now plays this game almost as well as frontier models, on the same word lists, for $0. What held it back wasn't strategy. It was spelling, and knowing what to do after a mistake.</p>
-<p>One caveat in the spirit of honesty: the spelling drill used common English words as targets, and some of those are also answers in the test sets. No training game ever used a test word as its <em>answer</em>, and the paper reports a strict variant without those targets, but it's a real limitation and I disclose it there.</p>
-<p><em>I'm Aafi Khan Malek, an independent researcher. If you have questions or ideas, the <a href="https://github.com/Aafimalek/wordle-rl">GitHub repo</a> is the best place to reach me.</em></p>
+<p>A 270M-parameter model now plays this game almost as well as frontier models on the same word lists, for $0. What held it back wasn't strategy. It was spelling, and knowing what to do after a mistake.</p>
+<p><em>I'm Aafi Khan Malek, an independent researcher (ORCID <a href="https://orcid.org/0009-0008-3211-5028">0009-0008-3211-5028</a>). If you have questions or ideas, open an issue on the <a href="https://github.com/Aafimalek/wordle-rl">GitHub repo</a>.</em></p>
 </article>
 </body></html>
