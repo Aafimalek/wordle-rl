@@ -149,6 +149,19 @@ def main():
         same = [r for r in recs["v10-s1"] if r["answer"] == stuck]
         if same:
             out["examples"]["after_same_word"] = slim(same[0])
+    # appendix gallery, chosen by rule: every WordleBench game the final model lost (alone; word-level) and every
+    # WordleBench game it won alone after a rejected word
+    fin = ROOT / "kaggle_runs" / "final" / "runs" / "eval" / "wordlebench" / f"{M}v10-s1-best"
+    word_path = fin.parent / (fin.name + W) / "results.jsonl"
+    if (fin / "results.jsonl").exists() and word_path.exists():
+        alone = [json.loads(x) for x in (fin / "results.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+        word = [json.loads(x) for x in word_path.read_text(encoding="utf-8").splitlines() if x.strip()]
+        out["gallery"] = {
+            "alone_losses": [slim(r) for r in sorted((r for r in alone if not r["won"]), key=lambda r: r["answer"])],
+            "word_losses": [slim(r) for r in sorted((r for r in word if not r["won"]), key=lambda r: r["answer"])],
+            "alone_recoveries": [slim(r) for r in sorted((r for r in alone if r["won"] and r["n_invalid"] > 0),
+                                                         key=lambda r: r["answer"])],
+        }
     path.write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
 
     sessions = {}

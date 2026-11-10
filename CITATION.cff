@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this code, data or model, please cite it as below."
+title: "Five Letters, 270M Parameters: How Far Can a Tiny Language Model Go at Wordle?"
+type: software
+authors:
+  - family-names: Malek
+    given-names: Aafi Khan
+    affiliation: Independent researcher
+repository-code: "https://github.com/Aafimalek/wordle-rl"
+url: "https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m"
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-11-10"
+keywords:
+  - small language models
+  - Wordle
+  - imitation learning
+  - constrained decoding
+  - evaluation protocols
+abstract: >-
+  Gemma 3 270M trained to play Wordle through text on free Kaggle GPUs. With word-level decoding the final model wins
+  97.0% of WordleBench games, 96.0% of Jeffers games and 98.6% of 500 TextArena games; alone, under the leaderboards'
+  own rule, it wins 94.0% of WordleBench games. The repository holds the code, the frozen word lists, every evaluation
+  summary and the paper source.

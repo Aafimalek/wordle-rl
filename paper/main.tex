@@ -6,6 +6,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{booktabs}
+\usepackage{adjustbox}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage[font=small,labelfont=bf]{caption}
@@ -15,6 +16,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
 \usepackage{hyperref}
+\usepackage{xurl}
 \definecolor{linkblue}{HTML}{1F4E9A}
 % figure palette (the same four slots as the matplotlib figures)
 \definecolor{ovblue}{HTML}{2A78D6}\definecolor{ovorange}{HTML}{EB6834}\definecolor{ovaqua}{HTML}{1BAF7A}
@@ -73,7 +75,7 @@ One round of training on the model's own rejected words removed most of these re
 We also read the scoring code of two public Wordle leaderboards.
 Neither checks guesses against a dictionary, so their frontier scores come from an easier rule than ours, and we report three labelled rule sets.
 We scored the held-back test sets once, for a model declared in advance.
-When its output is limited to dictionary words that it ranks itself (word-level decoding), the final model wins \F{wordlebench}{\WB}\% of WordleBench games and \F{jeffers}{\WB}\% of Jeffers games; the cited scores for GPT-5 are 99\% and 100\%.
+When its output is limited to dictionary words that it ranks itself (word-level decoding), the final model wins \FP{-constrained-shared-word}{all} of 500 TextArena games, \F{wordlebench}{\WB}\% of WordleBench games and \F{jeffers}{\WB}\% of Jeffers games; the cited scores for GPT-5 on the last two are 99\% and 100\%.
 With no decoding aid, it wins \F{wordlebench}{-open}\% of WordleBench games under the leaderboard's own rule, which is in the range of many frontier models there, and \F{wordlebench}{}\% under our strict rule.
 The total compute cost was \$0.
 \end{abstract}
@@ -107,10 +109,12 @@ The first model memorised its training answers instead of following the clues.
 After we fixed that, the model followed the clues but could not recall real words that fit them.
 After a spelling drill, the model seldom wrote a non-word, but it could not recover from one: when the game rejected a word, the model wrote the same word again.
 A recovery round, trained on boards with the model's own rejected words, raised the model-alone score on the selection set from \W{select}{v8-s3}{}\% to \W{select}{v10-s1}{}\%.
+With word-level decoding the final model wins \W{select}{v10-s1}{\WB}\% of the selection games.
+On the held-back test sets, scored once, it wins \R{public:hf-sft-gemma270m-\FINALRUN-best-constrained-shared-word:all-win}\% of 500 TextArena games, \F{wordlebench}{\WB}\% of WordleBench games and \F{jeffers}{\WB}\% of Jeffers games with word-level decoding, against 99\% and 100\% cited for GPT-5 on the last two.
 
 Figure~\ref{fig:overview} shows this loop.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering
 \resizebox{\linewidth}{!}{\input{figures/overview.tex}}
 \caption{Method overview. Each training round (top) answers a diagnosis of the lost games of the round before it (bottom). Percentages are wins on the 534 select words for the model alone under the strict rule (v8: mean of three seeds). A rule written before the last round picks the final model on select, and the test sets are scored once at the end.}
@@ -180,11 +184,11 @@ Table~\ref{tab:splits} gives the word sets.
 We score the test sets once, for a model that we declare in advance.
 No training game has a WordleBench or Jeffers word as its answer (``benchmark-clean'').
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Word sets. Select chooses checkpoints and recipes, heldout is a development set, and the test sets are scored once for a model declared in advance.}
 \label{tab:splits}
-\resizebox{\linewidth}{!}{%
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lrl}
 \toprule
 Set & Words & Use \\
@@ -197,7 +201,7 @@ Jeffers \citep{jeffers} & 50 & test, cited frontier scores \\
 rare & 500 & test, answers outside the classic list \\
 TextArena Wordle-v0, adapted & 500 seeds & test; ``clean'' = the 109 games whose secret is not a training answer \\
 \bottomrule
-\end{tabular}}
+\end{tabular}\end{adjustbox}
 \end{table}
 
 \subsection{Leaderboard rules and three rule sets}
@@ -291,11 +295,11 @@ Before each round, we wrote into the project roadmap what the round tests and wh
 Appendix~\ref{app:prereg} gives the rules that chose the final model.
 No test-set number chose any training step.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Training rounds. Each round answers one question raised by the round before it.}
 \label{tab:rounds}
-\resizebox{\linewidth}{!}{%
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{llll}
 \toprule
 Round & Starting weights & New training data & Question \\
@@ -309,7 +313,7 @@ v8 & v7 s1 & deep drill, 40 per word, boards of 1--5 guesses & Late-turn spellin
 v9 & v8 s2 & one more v8 round on fresh boards & Has the drill saturated? \\
 v10 & v8 s3 & recovery samples from the model's own rejected words & Can it recover from a rejection? \\
 \bottomrule
-\end{tabular}}
+\end{tabular}\end{adjustbox}
 \end{table}
 
 % ============================================================================
@@ -319,12 +323,12 @@ v10 & v8 s3 & recovery samples from the model's own rejected words & Can it reco
 We report the results in the order of the rounds, because each diagnosis chose the next round.
 Table~\ref{tab:dev} collects the main development results and Figure~\ref{fig:rounds} plots them.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Development results, win rate in \% (select: 534 games; heldout: 463 games). All rows passed the audit. Bold: the final model. The select score alone for v5 s1 is its training-time evaluation.}
 \label{tab:dev}
 \setlength{\tabcolsep}{4pt}
-\resizebox{\linewidth}{!}{%
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lcccccc}
 \toprule
  & \multicolumn{4}{c}{select} & \multicolumn{2}{c}{heldout} \\
@@ -345,10 +349,10 @@ v9 s1 (one more round from v8 s2) & \W{select}{v9-s1}{} & \W{select}{v9-s1}{-ret
 v10 s2 & \W{select}{v10-s2}{} & \W{select}{v10-s2}{-retry3} & \W{select}{v10-s2}{-open} & \W{select}{v10-s2}{\WB} & \W{heldout}{v10-s2}{} & \W{heldout}{v10-s2}{\WB} \\
 v10 mean ($k$ = \R{agg:v10:select:alone:k}) & \R{agg:v10:select:alone:mean}\,$\pm$\,\R{agg:v10:select:alone:sd} & \R{agg:v10:select:retry:mean} & \R{agg:v10:select:open:mean} & \R{agg:v10:select:word:mean}\,$\pm$\,\R{agg:v10:select:word:sd} & \R{agg:v10:heldout:alone:mean} & \R{agg:v10:heldout:word:mean} \\
 \bottomrule
-\end{tabular}}
+\end{tabular}\end{adjustbox}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.48\linewidth]{figures/rounds.pdf}\hfill
 \includegraphics[width=0.48\linewidth]{figures/rules.pdf}
@@ -374,7 +378,7 @@ The consistent teacher does not raise wins under word-level decoding.
 But it cuts clue contradictions from 44\% to 9\% and saves about 0.2 guesses per win.
 On a T4 GPU and on a laptop CPU, the word-level results were the same game for game.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Heldout (463 games), strict rule. Word-level decoding causes most of the wins; the consistent teacher makes play shorter and consistent with the clues.}
 \label{tab:ablation}
@@ -423,7 +427,7 @@ These data cannot separate the two readings, and every drill-based number in thi
 
 \paragraph{Training curves.} Figure~\ref{fig:curves} (left) shows the select score during training. Each drill round starts below its starting model (v8: 57--63\% at step 500, from 74.9\%) and passes it only after about 3,000 steps. Neither v8 seed shows a clear plateau at the end of its single epoch. The recovery round is different. It starts at the level of its base and peaks early (v10 s1 at step 300 of 688).
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.48\linewidth]{figures/curves.pdf}\hfill
 \includegraphics[width=0.48\linewidth]{figures/histogram.pdf}
@@ -453,7 +457,7 @@ The model had never trained on a board on which its own first choice had just be
 This is the covariate shift of imitation learning \citep{ross2011dagger}, here for one specific event.
 This diagnosis led to the recovery round (Section~\ref{sec:recovery}).
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.48\linewidth]{figures/invalid_by_turn.pdf}\hfill
 \includegraphics[width=0.48\linewidth]{figures/losses.pdf}
@@ -461,11 +465,11 @@ This diagnosis led to the recovery round (Section~\ref{sec:recovery}).
 \label{fig:turns}
 \end{figure}
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Rejected words on select (534 games, model alone, strict rule). After the drill (v8) the model seldom writes a non-word, but then it repeats it. After the recovery round (v10) it writes a different, valid word in most cases.}
 \label{tab:stuck}
-\resizebox{\linewidth}{!}{%
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lccccc}
 \toprule
  & v7 s1 & v8 s1 & v8 s3 & v10 s1 & v10 s2 \\
@@ -482,10 +486,10 @@ games won, by invalid turns in the game: none & \G{v7-s1}{inv0} & \G{v8-s1}{inv0
 \quad two & \G{v7-s1}{inv2} & \G{v8-s1}{inv2} & \G{v8-s3}{inv2} & \G{v10-s1}{inv2} & \G{v10-s2}{inv2} \\
 \quad three or more & \G{v7-s1}{inv3} & \G{v8-s1}{inv3} & \G{v8-s3}{inv3} & \G{v10-s1}{inv3} & \G{v10-s2}{inv3} \\
 \bottomrule
-\end{tabular}}
+\end{tabular}\end{adjustbox}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering\small
 \input{tables/examples.tex}
 \caption{Four select games. The letters after each guess give the feedback: G right place, Y elsewhere in the word, X absent. A boxed guess was rejected as a non-word and used the turn. (a)--(c) are games of v8 s1. In (b) the prompt shows that \textsc{saton} was rejected, yet the model writes it again. In (c), with word-level decoding, every guess is a real word, and the loss comes from a set of words that differ in one letter. (d) After the recovery round, the model follows a rejected word with a different, real word.}
@@ -519,7 +523,7 @@ Two problems remain.
 First, the model writes a first non-word more often than its base (\G{v10-s1}{gameswithnonword} games against \G{v8-s3}{gameswithnonword}).
 We do not know the cause.
 One possibility is that the recovery data shows non-words that are followed by a fix, so writing one costs less in training.
-Second, games with three or more invalid turns remain, and the model wins \G{v10-s1}{inv3} of them.
+Second, the model still wins \G{v10-s1}{inv3} games with three or more invalid turns.
 In most of these lost games the model no longer repeats one word; it writes several different non-words (Figure~\ref{fig:turns}, right).
 So the model now tries again, but its next attempts are often non-words too.
 The remaining gap is again spelling, now under pressure late in the game.
@@ -541,12 +545,12 @@ A rule written before the last training round chose the final model on select (A
 We declared it before we scored any test set for it: \FINALNAME.
 Table~\ref{tab:final} gives its only scores on the test sets.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
 \caption{Final test, win rate in \% (95\% CI). We scored each set once for the declared final model. Others made the cited scores on the same word sets, under the leaderboard rules of Section~\ref{sec:rules} (no dictionary), with other prompts and settings.}
 \label{tab:final}
 \setlength{\tabcolsep}{3.5pt}
-\resizebox{\linewidth}{!}{%
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lccccl}
 \toprule
  & \multicolumn{3}{c}{model alone} & word-level & cited best \\
@@ -559,12 +563,14 @@ rare (500) & \FC{rare}{} & \F{rare}{-retry3} & \FC{rare}{-open} & \FC{rare}{\WB}
 TextArena, all (500) & \FP{}{all} & -- & -- & \FP{-constrained-shared-word}{all} & -- \\
 TextArena, clean (109) & \FP{}{clean} & -- & -- & \FP{-constrained-shared-word}{clean} & -- \\
 \bottomrule
-\end{tabular}}
+\end{tabular}\end{adjustbox}
 \end{table}
 
 \paragraph{Comparison with the cited scores.} With word-level decoding the model wins \F{wordlebench}{\WB}\% of WordleBench games and \F{jeffers}{\WB}\% of Jeffers games, 2 and 4 points below the cited GPT-5 scores. The leaderboards use no dictionary, so their rule is open-vocab, and under that rule the model alone wins \F{wordlebench}{-open}\% and \F{jeffers}{-open}\%. On WordleBench this is in the range of many frontier models (94--98\% \citep{wordlebench}), with the caveats of Section~\ref{sec:limitations}. Under the strict rule the model alone wins \F{wordlebench}{}\% and \F{jeffers}{}\%.
 
 \paragraph{Agreement with the development sets.} WordleBench agrees with select (\F{wordlebench}{}\% against \W{select}{v10-s1}{}\% alone). Jeffers is lower alone (\F{jeffers}{}\%), but it has only 50 games and its interval reaches \R{jeffers:hf-sft-gemma270m-\FINALRUN-best:hi}\%. With word-level decoding the two sets are 2.1 and 3.1 points below select (\W{select}{v10-s1}{\WB}\%). The rare set is the hardest: its answers are outside the classic answer list, and the model wins \F{rare}{}\% alone and \F{rare}{\WB}\% with word-level decoding, with about 4.6 guesses per win. The model's word knowledge is concentrated on common words.
+
+\paragraph{The lost games.} Appendix~\ref{app:games} shows every WordleBench game that the final model lost. Alone, it lost 13. Ten of them contain non-words, and in nine a rejected word is written again, so the failure of Section~\ref{sec:stuck} is reduced but still present on test words. The other three are trap sets of real words that differ in one letter (\textsc{bonus}, \textsc{laser}, \textsc{water}), and these are exactly the three games that word-level decoding loses.
 
 \paragraph{Progress since the earlier final model.} On the same two sets, the earlier declared final model (SFT v5 s1) won 95.0\% and 86.0\% with word-level decoding and 60.0\% and 54.0\% alone. The spelling drill and the recovery round raise the model-alone scores by 27 and 20 points.
 
@@ -607,9 +613,11 @@ On the held-back test sets, the final model wins \F{wordlebench}{\WB}\% of Wordl
 Comparisons with frontier models depend on a rule that the leaderboards do not state: whether a misspelled word still gets feedback.
 
 \section*{Code and data availability}
-Code, word lists, evaluation summaries and the source of this paper: \url{https://github.com/Aafimalek/wordle-rl}.
-The final model: \url{https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m}.
-Every evaluation game (the model's raw output, the feedback and the outcome of each turn) and the training data of each round: \url{https://huggingface.co/collections/aafimalek2032/five-letters-wordle-rl-6af332879e666b4001ede7ed}.
+\begin{itemize}
+\item Code, word lists, evaluation summaries and the source of this paper:\\ \url{https://github.com/Aafimalek/wordle-rl}
+\item The final model:\\ \url{https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m}
+\item Every evaluation game (the model's raw output, the feedback and the outcome of each turn) and the training data of each round:\\ \url{https://huggingface.co/collections/aafimalek2032/five-letters-wordle-rl-6af332879e666b4001ede7ed}
+\end{itemize}
 
 \section*{Reproducibility statement}
 The project repository contains all code, configuration files and the frozen word lists.
@@ -713,6 +721,29 @@ Under the strict protocol, untrained small models almost never produce a valid g
 \section{Licences and data}
 We use Gemma~3 under the Gemma Terms of Use, and the released weights follow the same terms. The dictionary is the public Wordle word list. The leaderboard word sets come from the WordleBench and Jeffers repositories, and we use them only for evaluation. The word frequencies come from \texttt{wordfreq} \citep{speer2022wordfreq}. Every number comes from result files that an independent script checks by replaying the games.
 
+\section{More games}
+\label{app:games}
+These games are chosen by rule, not by hand: every WordleBench game that the final model lost alone under the strict rule (Figure~\ref{fig:gal-alone}), every WordleBench game that it lost with word-level decoding, and every WordleBench game that it won alone after a rejected word (Figure~\ref{fig:gal-word}). Letters after each guess give the feedback (G right place, Y elsewhere in the word, X absent); a boxed guess was rejected as a non-word and used the turn.
+
+\begin{figure}[htbp]
+\centering\small
+\input{tables/gallery_alone_losses.tex}
+\caption{Every WordleBench game that the final model lost alone under the strict rule (13 of 100). Ten contain non-words, and in nine of these a rejected word is written again: on test words the recovery round reduced this failure but did not remove it. The other three (\textsc{bonus}, \textsc{laser}, \textsc{water}) contain only real words that differ in one letter, and word-level decoding loses exactly these three games too. \textsc{laser} is not a Wordle answer word.}
+\label{fig:gal-alone}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\small
+\textbf{Lost with word-level decoding}\\[4pt]
+\input{tables/gallery_word_losses.tex}
+\\[10pt]
+\textbf{Won alone after a rejected word}\\[4pt]
+\input{tables/gallery_alone_recoveries.tex}
+\caption{Top: every WordleBench game that the final model lost with word-level decoding (3 of 100). Bottom: every WordleBench game that it won alone although the game rejected one of its guesses (7 games); after the rejection the model writes a different, real word.}
+\label{fig:gal-word}
+\end{figure}
+
+\clearpage
 \section{All recorded runs}
 Table~\ref{tab:all} lists every evaluation in the project's results folder for the development splits and the earlier test-set uses. \texttt{paper/build.py} generates it from the audited summaries.
 

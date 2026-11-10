@@ -149,10 +149,10 @@ def figures(S, turn_rows):
         return None if s is None else 100 * s["win_rate"]
 
     # Figure 1: select win rate by training round, alone and with word-level decoding; one dot per seed.
-    rounds = [("SFT v5", ["v5-s1", "v5-s2", "v5-s3"]), ("v6 teacher", ["v6-s1"]), ("v7 drill", ["v7-s1"]),
-              ("v8 deep drill", ["v8-s1", "v8-s2", "v8-s3"]), ("v9 (+1 round)", ["v9-s1"]),
-              ("v10 recovery", ["v10-s1", "v10-s2"])]
-    rounds = [r for r in rounds if r[0] == "SFT v5" or any(win("select", x) is not None for x in r[1])]
+    rounds = [("v5\nteacher", ["v5-s1", "v5-s2", "v5-s3"]), ("v6\nteacher+", ["v6-s1"]), ("v7\ndrill", ["v7-s1"]),
+              ("v8\ndeep drill", ["v8-s1", "v8-s2", "v8-s3"]), ("v9\n+1 round", ["v9-s1"]),
+              ("v10\nrecovery", ["v10-s1", "v10-s2"])]
+    rounds = [r for r in rounds if r[1][0] == "v5-s1" or any(win("select", x) is not None for x in r[1])]
     fig, ax = plt.subplots(figsize=(3.4, 2.3))
     style(ax)
     for suffix, color, label in (("-constrained-wordle-word", ORANGE, "with word-level decoding"),
@@ -170,7 +170,7 @@ def figures(S, turn_rows):
         ax.plot(xs, means, color=color, linewidth=1.6, zorder=2)
         ax.annotate(label, (xs[1], means[1]), textcoords="offset points", xytext=(0, 7 if suffix else -12),
                     ha="center", color=INK2, fontsize=7)
-    ax.set_xticks(range(len(rounds)), [r[0] for r in rounds], rotation=20, ha="right")
+    ax.set_xticks(range(len(rounds)), [r[0] for r in rounds], fontsize=7)
     ax.set_ylabel("wins on select (%)")
     ax.set_ylim(50, 100)
     fig.tight_layout()
@@ -382,7 +382,8 @@ def tables(S):
             "v8": "v8 seeds 1 and 2 (deep drill)",
             "v9": "v8 seed 3 and v9",
             "v10": "v10 seeds 1 and 2 (recovery round)",
-            "final": "final test"}
+            "final": "final test",
+            "v10data": "v10 recovery samples regenerated for the data release"}
     sp = ANA / "sessions.json"
     sess = json.loads(sp.read_text(encoding="utf-8")) if sp.exists() else {}
     sess.setdefault("v5-final", {"minutes": 228.0, "approx": True})
@@ -401,25 +402,35 @@ def tables(S):
     ex = json.loads(path.read_text(encoding="utf-8")).get("examples", {}) if path.exists() else {}
     titles = {"win": "(a) A win", "spelling_loss": "(b) Stuck on a rejected word", "trap_loss": "(c) A trap, word-level decoding",
               "recovered": "(d) Recovery after a rejection, v10 s1"}
-    cells = []
-    for kind, title in titles.items():
-        if kind not in ex:
-            continue
-        g = ex[kind]
-        lines = [f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{{title}}}: answer \\textsc{{{g['answer']}}}}} \\\\[2pt]"]
-        for k, t in enumerate(g["turns"], 1):
-            if t["valid"]:
-                tiles = "".join(f"\\t{'xyg'[c]}{{{ch.upper()}}}" for ch, c in zip(t["guess"], t["feedback"],
-                                                                                 strict=True))
-                note = "".join("XYG"[c] for c in t["feedback"])
-            else:
-                tiles = "".join(f"\\tn{{{ch.upper()}}}" for ch in t["guess"])
-                note = "rejected"
-            lines.append(f"{k} & {tiles}\\;{{\\scriptsize\\ttfamily {note}}} \\\\")
-        cells.append("\\begin{tabular}[t]{@{}r@{\\;\\,}l@{}}\n" + "\n".join(lines) + "\n\\end{tabular}")
+    cells = [board_tex(ex[kind], f"{title}: answer \\textsc{{{ex[kind]['answer']}}}") for kind, title in titles.items()
+             if kind in ex]
     pairs = ["\n\\hfill\n".join(cells[i:i + 2]) for i in range(0, len(cells), 2)]
     (T / "examples.tex").write_text("\n\\\\[8pt]\n".join(pairs) + "\n", encoding="utf-8", newline="\n")
+
+    # appendix gallery: games chosen by rule (paper/analysis.py), four boards per row
+    gal = json.loads(path.read_text(encoding="utf-8")).get("gallery", {}) if path.exists() else {}
+    for kind in ("alone_losses", "word_losses", "alone_recoveries"):
+        games = gal.get(kind, [])
+        boards = [board_tex(g, f"\\textsc{{{g['answer']}}}", short=True) for g in games]
+        rows_tex = ["\n\\hfill\n".join(boards[i:i + 4] + ["\\hphantom{" + boards[0] + "}"] * (4 - len(boards[i:i + 4])))
+                    for i in range(0, len(boards), 4)] if boards else []
+        (T / f"gallery_{kind}.tex").write_text("\n\\\\[6pt]\n".join(rows_tex) + "\n", encoding="utf-8", newline="\n")
     return len(rows)
+
+
+def board_tex(g, title, short=False):
+    """One game as a small LaTeX tabular of feedback tiles; the feedback is also printed as letters."""
+    lines = [f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{{title}}}}} \\\\[2pt]"]
+    for k, t in enumerate(g["turns"], 1):
+        if t["valid"]:
+            tiles = "".join(f"\\t{'xyg'[c]}{{{ch.upper()}}}" for ch, c in zip(t["guess"], t["feedback"], strict=True))
+            note = "".join("XYG"[c] for c in t["feedback"])
+        else:
+            shown = "".join(c if c.isascii() and c.isalpha() else "?" for c in (t["guess"] or ""))[:5].ljust(5, "?")
+            tiles = "".join(f"\\tn{{{ch.upper()}}}" for ch in shown)
+            note = "rej." if short else "rejected"
+        lines.append(f"{k} & {tiles}\\;{{\\scriptsize\\ttfamily {note}}} \\\\")
+    return "\\begin{tabular}[t]{@{}r@{\\;\\,}l@{}}\n" + "\n".join(lines) + "\n\\end{tabular}"
 
 
 DOCS = ROOT / "docs"

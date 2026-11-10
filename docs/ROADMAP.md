@@ -123,6 +123,7 @@ A full paper, not an outline:
 | fl-v9 | 3.55 | v8 s3 (GPU 0) + v9 s1 from v8 s2 (GPU 1) and evals (212.8 minutes). Week total after it: 22.95 h (guard 27 h) |
 | fl-v10 | 1.31 | recovery round from v8 s3 (2 seeds) and evals (78.5 minutes). Week total after it: 24.26 h (guard 27 h) |
 | fl-final | 0.89 | single final test of v10 s1 (53.6 minutes, after about an hour in Kaggle's queue). Week total: 25.15 h (guard 27 h) |
+| fl-v10data | 0.36 | regenerated the v10 recovery samples for the public data release (21.8 minutes; no training). All seven statistics match the original run for both seeds. Week total: 25.51 h (guard 27 h) |
 
 Test-set uses log: 2026-11-09 v5-s1 (declared final) on WordleBench, Jeffers (word-level and unconstrained), TextArena adapted (word-level), rare (word-level).
 

@@ -609,5 +609,1315 @@
     }
    ]
   }
+ },
+ "gallery": {
+  "alone_losses": [
+   {
+    "answer": "angel",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       1,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "dales",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "alien",
+      "valid": true,
+      "feedback": [
+       2,
+       1,
+       0,
+       2,
+       1
+      ]
+     },
+     {
+      "guess": "annel",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "annel",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "annel",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "awful",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "salon",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "album",
+      "valid": true,
+      "feedback": [
+       2,
+       1,
+       0,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "appul",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "axiul",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "appul",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "banal",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "salon",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       1,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "lanky",
+      "valid": true,
+      "feedback": [
+       1,
+       2,
+       2,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "manla",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "manla",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "mania",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "bonus",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "spoil",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "bosom",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "bonds",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "bongs",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "bonks",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "eagle",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       1,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "angle",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "bagle",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "magle",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "magle",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "vagle",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "laser",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "repay",
+      "valid": true,
+      "feedback": [
+       1,
+       1,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "wager",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "baker",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "safer",
+      "valid": true,
+      "feedback": [
+       1,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "maser",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "photo",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "toits",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "ploth",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "ploth",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "ploth",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "pouty",
+      "valid": true,
+      "feedback": [
+       2,
+       1,
+       0,
+       2,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "sonic",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "slick",
+      "valid": true,
+      "feedback": [
+       2,
+       0,
+       1,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "sichs",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "sichs",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "sichs",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "skins",
+      "valid": true,
+      "feedback": [
+       2,
+       0,
+       1,
+       1,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "touch",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "dutch",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "stuch",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "stuch",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "stuch",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "stuch",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "using",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "spoil",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "fishy",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "whisk",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       2,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "noise",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       2,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "nuins",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "usurp",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "surly",
+      "valid": true,
+      "feedback": [
+       1,
+       1,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "vours",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "rouns",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "rouns",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "rouns",
+      "valid": false,
+      "feedback": null
+     }
+    ]
+   },
+   {
+    "answer": "water",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     {
+      "guess": "alter",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "eater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "tater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "rater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "pater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "yacht",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       1,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "tacit",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "bacht",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "sacut",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "bacht",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "backs",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       0,
+       0
+      ]
+     }
+    ]
+   }
+  ],
+  "word_losses": [
+   {
+    "answer": "bonus",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "spoil",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "bosom",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "bonds",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "bongs",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "bonks",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       0,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "laser",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "repay",
+      "valid": true,
+      "feedback": [
+       1,
+       1,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "wager",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "baker",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "safer",
+      "valid": true,
+      "feedback": [
+       1,
+       2,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "maser",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "water",
+    "won": false,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     {
+      "guess": "alter",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "eater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "tater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "rater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "pater",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   }
+  ],
+  "alone_recoveries": [
+   {
+    "answer": "acorn",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       1,
+       1,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "scram",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       1,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "occra",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "acorn",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "clear",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       2,
+       1,
+       1,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "cedar",
+      "valid": true,
+      "feedback": [
+       2,
+       1,
+       0,
+       2,
+       2
+      ]
+     },
+     {
+      "guess": "chear",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "clear",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "guess",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       0,
+       1
+      ]
+     },
+     {
+      "guess": "deles",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "skens",
+      "valid": true,
+      "feedback": [
+       1,
+       0,
+       2,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "osefs",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "guess",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "mourn",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "surly",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "guess": "gourd",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       2,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "hourn",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "mourn",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "their",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       1,
+       1
+      ]
+     },
+     {
+      "guess": "meter",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       1,
+       0,
+       2
+      ]
+     },
+     {
+      "guess": "sterr",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "their",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "thrum",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       1,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "guess": "short",
+      "valid": true,
+      "feedback": [
+       0,
+       2,
+       0,
+       1,
+       1
+      ]
+     },
+     {
+      "guess": "thrdy",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "thrum",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "answer": "tooth",
+    "won": true,
+    "turns": [
+     {
+      "guess": "crate",
+      "valid": true,
+      "feedback": [
+       0,
+       0,
+       0,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "toits",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       0,
+       2,
+       0
+      ]
+     },
+     {
+      "guess": "tofty",
+      "valid": false,
+      "feedback": null
+     },
+     {
+      "guess": "tooth",
+      "valid": true,
+      "feedback": [
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    ]
+   }
+  ]
  }
 }

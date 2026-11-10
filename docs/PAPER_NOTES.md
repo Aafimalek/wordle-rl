@@ -493,3 +493,9 @@ Declared final model `sft-gemma270m-v10-s1` (see "Round v10 result"), scored onc
 - Jeffers alone (74%) is below select (88.0%); with 50 games the CI is 62-86%. Word-level decoding brings it to 96%.
 - Rare answers (outside the classic answer list) stay hard: 42.2% alone, 76.6% word-level, 4.6 guesses per win. The model's word knowledge is concentrated on common words.
 - No further training or selection uses these numbers.
+
+## v10 recovery samples regenerated for the data release (2026-11-10, Kaggle `bestman2/fl-v10data`, 21.8 minutes)
+
+The original v10 samples were generated inside `fl-v10` and not kept. `kaggle/plans/v10data.json` reruns the same two `recovery-data` commands (same model, words, parts, seeds, GPU type) with the output kept. All seven printed statistics match the original run for both seeds (games 4,273 / 4,273; won 1,340 / 1,403; games with a non-word 2,509 / 2,385; first-time non-words 2,727 / 2,567; repeated non-words 3,621 / 3,445; events 2,261 / 2,162; samples 3,077 / 2,879). Published as `aafimalek2032/five-letters-traces-v10`.
+
+Appendix of the paper ("More games"): every WordleBench game the final model lost alone (13: ten contain non-words, nine with a rejected word written again; three are trap sets of real words, BONUS, LASER, WATER), every game lost with word-level decoding (the same three), and every game won alone after a rejected word (7).

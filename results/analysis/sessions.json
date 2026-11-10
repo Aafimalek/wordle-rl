@@ -23,6 +23,10 @@
   "minutes": 78.5,
   "commit": "150eec9"
  },
+ "v10data": {
+  "minutes": 21.8,
+  "commit": "738eff2"
+ },
  "v5-distill-r1": {
   "minutes": 86.6,
   "commit": "713499d"
