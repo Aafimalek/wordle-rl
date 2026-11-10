@@ -1,0 +1,43 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "wordlebench",
+  "word_set_sha256": "cd634fab9574988be648651291ffcb29fc72aa41006afe5272605f4c994de120",
+  "n_words": 100,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-gemma270m-v3c-best",
+    "model": "/tmp/fl-heavy/sft-gemma270m-v3c/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "wordle",
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 100,
+  "win_rate": 0.73,
+  "win_rate_ci95": [
+    0.64,
+    0.81
+  ],
+  "mean_guesses_wins": 4.137,
+  "mean_guesses_fail7": 4.91,
+  "mean_guesses_fail7_ci95": [
+    4.61,
+    5.21
+  ],
+  "invalid_turn_rate": 0.0,
+  "games_with_invalid": 0,
+  "histogram": {
+    "1": 0,
+    "2": 2,
+    "3": 21,
+    "4": 20,
+    "5": 25,
+    "6": 5,
+    "fail": 27
+  }
+}

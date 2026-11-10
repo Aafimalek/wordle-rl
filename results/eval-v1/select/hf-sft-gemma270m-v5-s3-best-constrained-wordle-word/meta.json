@@ -1,0 +1,22 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "select",
+  "word_set_sha256": "6cdf00ac87e15f877481d855093cb0cd827010b217d351b35f542d5f9c222f93",
+  "n_words": 534,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-gemma270m-v5-s3-best",
+    "model": "/tmp/fl-heavy/sft-gemma270m-v5-s3/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "wordle",
+    "constrain_mode": "word",
+    "beams": 16,
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

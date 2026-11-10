@@ -1,0 +1,48 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "jeffers",
+  "word_set_sha256": "b257f9d72ea45df1920633b0ee871c75d545156ceff45a9a33c416887ae8acf2",
+  "n_words": 50,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-gemma270m-v10-s1-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/sft-gemma270m-v10-s1/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true,
+      "guess_word": false
+    }
+  },
+  "rule": "retry-3",
+  "retries": 3,
+  "games": 50,
+  "win_rate": 0.8,
+  "win_rate_ci95": [
+    0.68,
+    0.9
+  ],
+  "mean_guesses_wins": 3.85,
+  "mean_guesses_fail7": 4.48,
+  "mean_guesses_fail7_ci95": [
+    4.02,
+    4.94
+  ],
+  "invalid_turn_rate": 0.0561,
+  "clue_contradiction_rate": 0.1316,
+  "games_with_invalid": 8,
+  "rejected_words_per_game": 1.38,
+  "games_with_rejected": 17,
+  "histogram": {
+    "1": 0,
+    "2": 5,
+    "3": 9,
+    "4": 17,
+    "5": 5,
+    "6": 4,
+    "fail": 10
+  }
+}

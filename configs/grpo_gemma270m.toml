@@ -1,0 +1,63 @@
+# GRPO: start from the best SFT checkpoint and learn from real games.
+[run]
+name = "grpo-gemma270m-v2"
+seed = 1
+trackio_project = ""
+
+[model]
+# A local folder, a Hub model id, or hub:<repo>:<run>/<slot> for a checkpoint in your runs repo,
+# e.g. "hub:YOUR_HF_NAME/five-letters-runs:sft-gemma270m-v1/best"
+init = "runs/sft-gemma270m-v2/best"
+
+[format]
+spaced = true
+state_line = true
+hard_mode = false
+
+[rollout]
+answers_per_step = 8
+group_size = 8                   # 64 games per step
+temperature = 1.0
+max_new_tokens = 96
+gen_batch_size = 64
+
+[reward]
+binary = false                   # true = 1 for a win, else 0 (ablation)
+win = 1.0
+speed_bonus = 0.5                # extra reward for unused turns, scaled 0..0.5
+invalid_penalty = 0.2            # per invalid model turn
+state_bonus = 0.0                # >0 rewards an exactly correct <state> line (ablation)
+
+[curriculum]
+# P(the teacher plays the first k = 0, 1, 2, 3 moves), moving from start to end over `steps`
+prefix_probs_start = [0.25, 0.25, 0.25, 0.25]
+prefix_probs_end = [1.0, 0.0, 0.0, 0.0]
+steps = 300
+teacher = "lookahead"
+vocab = "shared"                 # must match the traces the SFT model learned from
+opener = "crate"
+
+[train]
+steps = 600
+lr = 2e-6
+micro_batch_size = 16
+warmup_steps = 10
+grad_clip = 1.0
+
+[eval]
+every_steps = 50
+split = "val"
+games = 100
+batch_size = 100
+
+[checkpoint]
+every_minutes = 20
+keep = 2
+hub_repo = ""
+hub_every_minutes = 30
+hub_include_optimizer = false   # 100 GB free private Hub cap: weights only
+squash_hub_history = true
+
+[budget]
+hours = "auto"
+reserve_minutes = 20

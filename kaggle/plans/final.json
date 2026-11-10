@@ -1,0 +1,30 @@
+{
+  "_readme": "Single final test of the declared final model sft-gemma270m-v10-s1 (declared in PAPER_NOTES before this run). No training. WordleBench and Jeffers under strict, retry-3, open-vocab and word-level; TextArena-adapted alone and word-level; rare under all four.",
+  "final": {
+    "name": "final",
+    "hours": 2,
+    "pip": [
+      "textarena",
+      "nltk",
+      "wordfreq"
+    ],
+    "gpu0": [
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split wordlebench",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split wordlebench --retries 3",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split wordlebench --open-vocab",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split wordlebench --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split jeffers",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split jeffers --retries 3",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split jeffers --open-vocab",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split jeffers --constrain wordle --constrain-mode word"
+    ],
+    "gpu1": [
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --seeds 0:500",
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --seeds 0:500 --constrain shared --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split rare",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split rare --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split rare --retries 3",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split rare --open-vocab"
+    ]
+  }
+}

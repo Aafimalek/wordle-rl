@@ -1,0 +1,51 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "heldout",
+  "word_set_sha256": "7bd2d3b83894defcd0ccb6593da6da46e186b943bc9e3b85c653e89324f36e89",
+  "n_words": 463,
+  "hard_mode": true,
+  "max_turns": 6,
+  "policy": {
+    "name": "solver-LookaheadSolver",
+    "solver": "LookaheadSolver",
+    "pool": "answers",
+    "hard_mode": true,
+    "candidate_bonus": 0.1,
+    "opener": "salet",
+    "beam": [
+      1,
+      12,
+      6,
+      3,
+      2,
+      1
+    ],
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 463,
+  "win_rate": 0.9957,
+  "win_rate_ci95": [
+    0.9892,
+    1.0
+  ],
+  "mean_guesses_wins": 3.5184,
+  "mean_guesses_fail7": 3.5335,
+  "mean_guesses_fail7_ci95": [
+    3.4644,
+    3.6026
+  ],
+  "invalid_turn_rate": 0.0,
+  "games_with_invalid": 0,
+  "histogram": {
+    "1": 0,
+    "2": 28,
+    "3": 202,
+    "4": 196,
+    "5": 34,
+    "6": 1,
+    "fail": 2
+  }
+}

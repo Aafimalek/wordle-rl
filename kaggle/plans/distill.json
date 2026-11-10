@@ -1,0 +1,24 @@
+{
+  "_readme": "Roadmap 2.1 (distil word-level decoding into the weights), round 1. Fill BASE_RUN with the base model chosen by the decision rules (GRPO model in case B, sft-gemma270m-v5-s1 in case C). GPU 1 generates half the games then marks a barrier; GPU 0 generates the other half, waits for the barrier, fine-tunes on the won games and scores the result. Go/no-go: select UNCONSTRAINED must gain >= 2 points (model-alone goal); word-level must not drop. Round 2 = same with BASE_RUN = sft-gemma270m-v5-d1 and new names (-d2).",
+  "distill-r1": {
+    "name": "v5-distill-r1",
+    "hours": 6,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "distill-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --out data/traces/distill-r1 --openers model,slate --part 0 --parts 2",
+      "gate distill-r1-gen1 --wait-minutes 240",
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-d1 --set run.seed=1 --set model.name=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --set data.traces_dir=data/traces/distill-r1 --set data.hub_dataset= --set data.extra_traces_dir= --set data.extra_hub_dataset= --set data.exclude_benchmark_answers=True --set train.epochs=1 --set train.lr=2e-05 --set train.warmup_steps=20 --set eval.split=select --set eval.games=534 --set eval.every_steps=100 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-d1/best --split select",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-d1/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-d1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-d1/best --split heldout --constrain wordle --constrain-mode word"
+    ],
+    "gpu1": [
+      "distill-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --out data/traces/distill-r1 --openers model,slate --part 1 --parts 2",
+      "gate distill-r1-gen1 --mark"
+    ]
+  }
+}

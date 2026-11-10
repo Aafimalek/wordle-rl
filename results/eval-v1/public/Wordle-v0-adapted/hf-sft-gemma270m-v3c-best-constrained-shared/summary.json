@@ -1,0 +1,52 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "adapted",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": null,
+  "policy": {
+    "name": "hf-sft-gemma270m-v3c-best",
+    "model": "/tmp/fl-heavy/sft-gemma270m-v3c/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "shared",
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "all": {
+    "games": 500,
+    "unique_answers": 154,
+    "win_rate": 0.914,
+    "win_rate_ci95": [
+      0.89,
+      0.938
+    ],
+    "mean_guesses_wins": 3.6565,
+    "mean_guesses_fail7": 3.944,
+    "mean_textarena_reward": 0.958,
+    "games_lost_by_invalid_moves": 0
+  },
+  "clean": {
+    "games": 109,
+    "unique_answers": 32,
+    "win_rate": 0.7248,
+    "win_rate_ci95": [
+      0.6422,
+      0.8073
+    ],
+    "mean_guesses_wins": 4.3165,
+    "mean_guesses_fail7": 5.055,
+    "mean_textarena_reward": 0.8651,
+    "games_lost_by_invalid_moves": 0
+  },
+  "secret_outside_wordle_lists": {
+    "games": 0
+  }
+}

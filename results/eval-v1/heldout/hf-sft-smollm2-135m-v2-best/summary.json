@@ -1,0 +1,42 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "heldout",
+  "word_set_sha256": "7bd2d3b83894defcd0ccb6593da6da46e186b943bc9e3b85c653e89324f36e89",
+  "n_words": 463,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-smollm2-135m-v2-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/sft-smollm2-135m-v2/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 463,
+  "win_rate": 0.2333,
+  "win_rate_ci95": [
+    0.1944,
+    0.2721
+  ],
+  "mean_guesses_wins": 3.7407,
+  "mean_guesses_fail7": 6.2397,
+  "mean_guesses_fail7_ci95": [
+    6.1015,
+    6.3715
+  ],
+  "invalid_turn_rate": 0.4266,
+  "games_with_invalid": 372,
+  "histogram": {
+    "1": 0,
+    "2": 5,
+    "3": 45,
+    "4": 37,
+    "5": 15,
+    "6": 6,
+    "fail": 355
+  }
+}

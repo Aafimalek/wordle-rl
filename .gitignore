@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+# generated artifacts: never commit, they live on the HF Hub
+/runs/
+data/traces/
+.cache/
+*.npy
+.env
+*.log
+kaggle_runs/

@@ -1,0 +1,42 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "heldout",
+  "word_set_sha256": "7bd2d3b83894defcd0ccb6593da6da46e186b943bc9e3b85c653e89324f36e89",
+  "n_words": 463,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-SmolLM2-360M-Instruct",
+    "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 463,
+  "win_rate": 0.0022,
+  "win_rate_ci95": [
+    0.0,
+    0.0065
+  ],
+  "mean_guesses_wins": 1.0,
+  "mean_guesses_fail7": 6.987,
+  "mean_guesses_fail7_ci95": [
+    6.9611,
+    7.0
+  ],
+  "invalid_turn_rate": 0.833,
+  "games_with_invalid": 462,
+  "histogram": {
+    "1": 1,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "fail": 462
+  }
+}

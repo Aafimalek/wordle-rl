@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fiveletters"
+version = "0.1.0"
+description = "Train a ~270M language model to play Wordle near-optimally on free GPUs."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "wordfreq>=3.0",  # general-English word frequency for the v6 teacher (never Wordle answer statistics)
+  "tomli>=2.0; python_version<'3.11'",
+]
+
+[project.optional-dependencies]
+# Kaggle and Colab already ship torch; the launcher notebooks install only what is missing.
+train = [
+  "torch>=2.2",
+  "transformers>=4.53",
+  "huggingface_hub>=0.25",
+  "safetensors>=0.4",
+]
+track = ["trackio"]
+dev = ["pytest>=8", "ruff>=0.5", "tokenizers>=0.19"]
+
+[project.scripts]
+fiveletters = "fiveletters.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fiveletters = ["resources/*.txt", "resources/*.json", "resources/splits/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: takes more than a few seconds (full solver runs)"]
+addopts = "-m 'not slow'"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]

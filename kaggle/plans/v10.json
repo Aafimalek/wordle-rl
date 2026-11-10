@@ -1,0 +1,34 @@
+{
+  "_readme": "Round v10, recovery (pre-registered in ROADMAP; the author's choice after the stuck-on-a-rejected-word diagnosis). Base: sft-gemma270m-v8-s3 (select alone 83.9%). Each GPU lets the base play 4,273 training-side hidden words alone, turns every first rejection of its own non-word into boards with a real word that fits as the target, mixes in 4% of the v8 data as replay, and fine-tunes the base for two epochs (lr 2e-5). Then: alone on select and heldout, retry-3, the leaderboard rule, and, if alone on select is at least the base, word-level decoding.",
+  "v10": {
+    "name": "v10",
+    "hours": 3,
+    "pip": [
+      "textarena",
+      "nltk",
+      "wordfreq"
+    ],
+    "gpu0": [
+      "recovery-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --out data/traces/v10-s1 --limit 9000 --part 0 --parts 2 --per-event 4 --repeat-prob 0.3 --seed 1",
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v10-s1 --set run.seed=1 --set model.name=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --set data.traces_dir=data/traces/v10-s1 --set data.extra_traces_dir=data/traces/v8-replay-s1 --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v8 --set data.extra_sample_frac=0.04 --set data.exclude_benchmark_answers=True --set train.epochs=2 --set train.lr=2e-05 --set train.warmup_steps=30 --set eval.every_steps=100 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split select",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split select --retries 3",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split select --open-vocab",
+      "gate v10-s1-alone --check select/hf-sft-gemma270m-v10-s1-best --min-win 0.839 --min-games 534",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s1/best --split heldout --constrain wordle --constrain-mode word"
+    ],
+    "gpu1": [
+      "recovery-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --out data/traces/v10-s2 --limit 9000 --part 1 --parts 2 --per-event 4 --repeat-prob 0.3 --seed 2",
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v10-s2 --set run.seed=2 --set model.name=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --set data.traces_dir=data/traces/v10-s2 --set data.extra_traces_dir=data/traces/v8-replay-s2 --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v8 --set data.extra_sample_frac=0.04 --set data.exclude_benchmark_answers=True --set train.epochs=2 --set train.lr=2e-05 --set train.warmup_steps=30 --set eval.every_steps=100 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split select",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split select --retries 3",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split select --open-vocab",
+      "gate v10-s2-alone --check select/hf-sft-gemma270m-v10-s2-best --min-win 0.839 --min-games 534",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v10-s2/best --split heldout --constrain wordle --constrain-mode word"
+    ]
+  }
+}

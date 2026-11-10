@@ -1,0 +1,33 @@
+% Method overview: training rounds (top row) and the diagnoses that chose them (bottom row).
+% Numbers come from numbers.tex (select, model alone, strict rule).
+\begin{tikzpicture}[
+  font=\small,
+  train/.style={draw=ovblue, fill=ovblue!10, rounded corners=3pt, align=center, text width=3.3cm,
+                minimum height=2.05cm, inner sep=4pt},
+  diag/.style={draw=ovorange, fill=ovorange!10, rounded corners=3pt, align=center, text width=3.3cm,
+               minimum height=1.5cm, inner sep=4pt},
+  test/.style={draw=ovaqua, fill=ovaqua!12, rounded corners=3pt, align=center, text width=3.3cm,
+               minimum height=2.05cm, inner sep=4pt},
+  flow/.style={-{Stealth[length=2.2mm]}, line width=0.7pt, draw=ovink},
+]
+\node[train] (t1) at (0, 0)
+  {\textbf{Teacher games}\\[1pt]{\footnotesize v2--v5: imitate a solver that plays clue-consistent words}\\[2pt]\textbf{62.0\%}};
+\node[train] (t2) at (4.3, 0)
+  {\textbf{Spelling drill}\\[1pt]{\footnotesize v7--v8: real words that fit a board}\\[2pt]\textbf{\R{agg:v8:select:alone:mean}\%} {\footnotesize(3 seeds)}};
+\node[train] (t3) at (8.6, 0)
+  {\textbf{Recovery round}\\[1pt]{\footnotesize v10: boards with the model's own rejected words}\\[2pt]\textbf{\W{select}{v10-s1}{}\%}};
+\node[test] (t4) at (12.9, 0)
+  {\textbf{Final test, once}\\[1pt]{\footnotesize WordleBench, Jeffers, rare, TextArena; model declared in advance}};
+\node[diag] (d1) at (2.15, -2.5)
+  {\textbf{Diagnosis 1}\\{\footnotesize follows the clues, but cannot recall a real word that fits}};
+\node[diag] (d2) at (6.45, -2.5)
+  {\textbf{Diagnosis 2}\\{\footnotesize after a rejection, writes the same non-word again}};
+\node[diag] (d3) at (10.75, -2.5)
+  {\textbf{Decision rule}\\{\footnotesize written before the round; picks the final model on select}};
+\draw[flow] (t1.south) |- ([xshift=-1pt]d1.west);
+\draw[flow] (d1.east) -| (t2.south);
+\draw[flow] (t2.south) |- ([xshift=-1pt]d2.west);
+\draw[flow] (d2.east) -| (t3.south);
+\draw[flow] (t3.south) |- ([xshift=-1pt]d3.west);
+\draw[flow] (d3.east) -| (t4.south);
+\end{tikzpicture}

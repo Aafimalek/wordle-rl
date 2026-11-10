@@ -1,0 +1,54 @@
+{
+ "ablate-word": {
+  "minutes": 20.4,
+  "commit": "3b3507c"
+ },
+ "final": {
+  "minutes": 53.6,
+  "commit": "8daddd3"
+ },
+ "gemma-v2": {
+  "minutes": 185.7,
+  "commit": "f670899"
+ },
+ "gemma-v3-final": {
+  "minutes": 22.5,
+  "commit": "3a7657e"
+ },
+ "gemma-v3c": {
+  "minutes": 138.6,
+  "commit": "ee40e80"
+ },
+ "v10": {
+  "minutes": 78.5,
+  "commit": "150eec9"
+ },
+ "v5-distill-r1": {
+  "minutes": 86.6,
+  "commit": "713499d"
+ },
+ "v5-s1": {
+  "minutes": 135.1,
+  "commit": "d78d106"
+ },
+ "v5-seeds": {
+  "minutes": 151.3,
+  "commit": "dcad0e4"
+ },
+ "v6": {
+  "minutes": 157.2,
+  "commit": "fff63d4"
+ },
+ "v7": {
+  "minutes": 174.8,
+  "commit": "331577c"
+ },
+ "v8": {
+  "minutes": 210.9,
+  "commit": "54e591a"
+ },
+ "v9": {
+  "minutes": 212.8,
+  "commit": "eac40db"
+ }
+}

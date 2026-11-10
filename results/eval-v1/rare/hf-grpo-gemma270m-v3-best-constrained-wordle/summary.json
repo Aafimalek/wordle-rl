@@ -1,0 +1,43 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "rare",
+  "word_set_sha256": "c13d13a9238c0d400a6c1ec10f2e52a7e55cf593cc64267335645ebad6ed9eb7",
+  "n_words": 500,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-grpo-gemma270m-v3-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/grpo-gemma270m-v3/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "wordle",
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 500,
+  "win_rate": 0.586,
+  "win_rate_ci95": [
+    0.544,
+    0.63
+  ],
+  "mean_guesses_wins": 4.7372,
+  "mean_guesses_fail7": 5.674,
+  "mean_guesses_fail7_ci95": [
+    5.556,
+    5.792
+  ],
+  "invalid_turn_rate": 0.0,
+  "games_with_invalid": 0,
+  "histogram": {
+    "1": 0,
+    "2": 0,
+    "3": 28,
+    "4": 94,
+    "5": 98,
+    "6": 73,
+    "fail": 207
+  }
+}

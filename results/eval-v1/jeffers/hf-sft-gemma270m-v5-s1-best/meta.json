@@ -1,0 +1,19 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "jeffers",
+  "word_set_sha256": "b257f9d72ea45df1920633b0ee871c75d545156ceff45a9a33c416887ae8acf2",
+  "n_words": 50,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-gemma270m-v5-s1-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/sft-gemma270m-v5-s1/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "native-verifiers",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": "copy-of-verifiers-0.4.1",
+  "policy": {
+    "name": "hf-gemma-3-270m-it",
+    "model": "google/gemma-3-270m-it",
+    "do_sample": false,
+    "max_new_tokens": 256,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

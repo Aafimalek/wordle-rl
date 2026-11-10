@@ -1,0 +1,25 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "adapted",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": null,
+  "policy": {
+    "name": "hf-sft-gemma270m-v5-s1-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/sft-gemma270m-v5-s1/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "shared",
+    "constrain_mode": "word",
+    "beams": 16,
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

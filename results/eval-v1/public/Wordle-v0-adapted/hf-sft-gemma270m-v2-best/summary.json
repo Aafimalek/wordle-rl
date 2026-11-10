@@ -1,0 +1,51 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "adapted",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": null,
+  "policy": {
+    "name": "hf-sft-gemma270m-v2-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/sft-gemma270m-v2/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "all": {
+    "games": 500,
+    "unique_answers": 154,
+    "win_rate": 0.87,
+    "win_rate_ci95": [
+      0.838,
+      0.9
+    ],
+    "mean_guesses_wins": 3.4276,
+    "mean_guesses_fail7": 3.892,
+    "mean_textarena_reward": 0.9298,
+    "games_lost_by_invalid_moves": 58
+  },
+  "clean": {
+    "games": 109,
+    "unique_answers": 32,
+    "win_rate": 0.4954,
+    "win_rate_ci95": [
+      0.3945,
+      0.5872
+    ],
+    "mean_guesses_wins": 3.9074,
+    "mean_guesses_fail7": 5.4679,
+    "mean_textarena_reward": 0.7275,
+    "games_lost_by_invalid_moves": 49
+  },
+  "secret_outside_wordle_lists": {
+    "games": 0
+  }
+}

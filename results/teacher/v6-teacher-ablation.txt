@@ -1,0 +1,5 @@
+teacher-level ablation, train answers minus leaderboard words (n=1638, pool=answers) and 400 extra answers (pool=all); vocab=shared, opener=CRATE
+consistent-greedy  train: win 99.69%  guesses/win 3.540  (loss=7) 3.551 | extra: win 82.25%  guesses/win 4.252  (loss=7) 4.740  [1s]
+common-only        train: win 99.69%  guesses/win 3.543  (loss=7) 3.553 | extra: win 93.25%  guesses/win 4.038  (loss=7) 4.237  [1s]
+probe-only         train: win 100.00%  guesses/win 3.492  (loss=7) 3.492 | extra: win 95.50%  guesses/win 4.291  (loss=7) 4.412  [11s]
+common-probe       train: win 99.94%  guesses/win 3.502  (loss=7) 3.504 | extra: win 98.75%  guesses/win 4.149  (loss=7) 4.185  [11s]

@@ -1,0 +1,23 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "adapted",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": null,
+  "policy": {
+    "name": "hf-grpo-gemma270m-v3-best",
+    "model": "/kaggle/working/runs/_downloads/aafimalek2032__five-letters-runs/grpo-gemma270m-v3/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "constrained_decoding": "shared",
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "select",
+  "word_set_sha256": "6cdf00ac87e15f877481d855093cb0cd827010b217d351b35f542d5f9c222f93",
+  "n_words": 534,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-sft-gemma270m-v9-s1-best",
+    "model": "/tmp/fl-heavy/sft-gemma270m-v9-s1/best",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true,
+      "guess_word": false
+    }
+  },
+  "rule": "retry-3",
+  "retries": 3,
+  "games": 534,
+  "win_rate": 0.8633,
+  "win_rate_ci95": [
+    0.8333,
+    0.8914
+  ],
+  "mean_guesses_wins": 3.6681,
+  "mean_guesses_fail7": 4.1236,
+  "mean_guesses_fail7_ci95": [
+    4.0075,
+    4.2528
+  ],
+  "invalid_turn_rate": 0.0395,
+  "clue_contradiction_rate": 0.1013,
+  "games_with_invalid": 60,
+  "rejected_words_per_game": 0.691,
+  "games_with_rejected": 73,
+  "histogram": {
+    "1": 0,
+    "2": 38,
+    "3": 164,
+    "4": 181,
+    "5": 69,
+    "6": 9,
+    "fail": 73
+  }
+}

@@ -1,0 +1,613 @@
+{
+ "loss_breakdown": {
+  "v7-s1": {
+   "games": 534,
+   "lost": 134,
+   "lost_with_invalid": 129,
+   "nonwords": 347,
+   "nonwords_fit_clues": 277,
+   "nonwords_one_letter_off": 167,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 391,
+     "won": 386
+    },
+    "1": {
+     "games": 12,
+     "won": 0
+    },
+    "2": {
+     "games": 70,
+     "won": 13
+    },
+    "3": {
+     "games": 61,
+     "won": 1
+    }
+   },
+   "games_with_nonword": 143,
+   "first_time": 217,
+   "repeats": 130,
+   "next_valid": 13,
+   "next_same": 124,
+   "lost_on_one_repeated": 52
+  },
+  "v7s-s1": {
+   "games": 534,
+   "lost": 234,
+   "lost_with_invalid": 228,
+   "nonwords": 611,
+   "nonwords_fit_clues": 479,
+   "nonwords_one_letter_off": 258,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 291,
+     "won": 285
+    },
+    "1": {
+     "games": 21,
+     "won": 0
+    },
+    "2": {
+     "games": 110,
+     "won": 15
+    },
+    "3": {
+     "games": 112,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 243,
+   "first_time": 377,
+   "repeats": 234,
+   "next_valid": 18,
+   "next_same": 216,
+   "lost_on_one_repeated": 96
+  },
+  "v8-s1": {
+   "games": 534,
+   "lost": 95,
+   "lost_with_invalid": 91,
+   "nonwords": 270,
+   "nonwords_fit_clues": 245,
+   "nonwords_one_letter_off": 126,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 443,
+     "won": 439
+    },
+    "1": {
+     "games": 2,
+     "won": 0
+    },
+    "2": {
+     "games": 14,
+     "won": 0
+    },
+    "3": {
+     "games": 75,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 91,
+   "first_time": 97,
+   "repeats": 173,
+   "next_valid": 1,
+   "next_same": 88,
+   "lost_on_one_repeated": 83
+  },
+  "v8-s2": {
+   "games": 534,
+   "lost": 89,
+   "lost_with_invalid": 85,
+   "nonwords": 247,
+   "nonwords_fit_clues": 220,
+   "nonwords_one_letter_off": 103,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 448,
+     "won": 444
+    },
+    "1": {
+     "games": 7,
+     "won": 1
+    },
+    "2": {
+     "games": 14,
+     "won": 0
+    },
+    "3": {
+     "games": 65,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 86,
+   "first_time": 92,
+   "repeats": 155,
+   "next_valid": 3,
+   "next_same": 78,
+   "lost_on_one_repeated": 73
+  },
+  "v8-s3": {
+   "games": 534,
+   "lost": 86,
+   "lost_with_invalid": 82,
+   "nonwords": 242,
+   "nonwords_fit_clues": 220,
+   "nonwords_one_letter_off": 108,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 449,
+     "won": 445
+    },
+    "1": {
+     "games": 8,
+     "won": 3
+    },
+    "2": {
+     "games": 18,
+     "won": 0
+    },
+    "3": {
+     "games": 59,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 85,
+   "first_time": 91,
+   "repeats": 151,
+   "next_valid": 8,
+   "next_same": 76,
+   "lost_on_one_repeated": 71
+  },
+  "v9-s1": {
+   "games": 534,
+   "lost": 81,
+   "lost_with_invalid": 74,
+   "nonwords": 215,
+   "nonwords_fit_clues": 193,
+   "nonwords_one_letter_off": 103,
+   "other_invalid_turns": 5,
+   "by_invalid_turns": {
+    "0": {
+     "games": 459,
+     "won": 452
+    },
+    "1": {
+     "games": 5,
+     "won": 1
+    },
+    "2": {
+     "games": 11,
+     "won": 0
+    },
+    "3": {
+     "games": 59,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 75,
+   "first_time": 78,
+   "repeats": 142,
+   "next_valid": 1,
+   "next_same": 69,
+   "lost_on_one_repeated": 67
+  },
+  "v10-s1": {
+   "games": 534,
+   "lost": 64,
+   "lost_with_invalid": 60,
+   "nonwords": 223,
+   "nonwords_fit_clues": 206,
+   "nonwords_one_letter_off": 97,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 433,
+     "won": 429
+    },
+    "1": {
+     "games": 42,
+     "won": 39
+    },
+    "2": {
+     "games": 18,
+     "won": 2
+    },
+    "3": {
+     "games": 41,
+     "won": 0
+    }
+   },
+   "games_with_nonword": 101,
+   "first_time": 150,
+   "repeats": 73,
+   "next_valid": 51,
+   "next_same": 32,
+   "lost_on_one_repeated": 15
+  },
+  "v10-s2": {
+   "games": 534,
+   "lost": 68,
+   "lost_with_invalid": 62,
+   "nonwords": 220,
+   "nonwords_fit_clues": 202,
+   "nonwords_one_letter_off": 106,
+   "other_invalid_turns": 0,
+   "by_invalid_turns": {
+    "0": {
+     "games": 430,
+     "won": 424
+    },
+    "1": {
+     "games": 45,
+     "won": 39
+    },
+    "2": {
+     "games": 16,
+     "won": 2
+    },
+    "3": {
+     "games": 43,
+     "won": 1
+    }
+   },
+   "games_with_nonword": 104,
+   "first_time": 163,
+   "repeats": 57,
+   "next_valid": 50,
+   "next_same": 27,
+   "lost_on_one_repeated": 13
+  }
+ },
+ "paired": {
+  "v7-s1:v8-s1": {
+   "games": 534,
+   "b_only": 70,
+   "a_only": 31,
+   "p": 0.00013082231066914517
+  },
+  "v7-s1:v8-s2": {
+   "games": 534,
+   "b_only": 73,
+   "a_only": 28,
+   "p": 8.635781314660542e-06
+  },
+  "v8-s1:v8-s2": {
+   "games": 534,
+   "b_only": 30,
+   "a_only": 24,
+   "p": 0.4966174353179338
+  },
+  "v7-s1:v8-s3": {
+   "games": 534,
+   "b_only": 73,
+   "a_only": 25,
+   "p": 1.2796062450772916e-06
+  },
+  "v8-s2:v9-s1": {
+   "games": 534,
+   "b_only": 30,
+   "a_only": 22,
+   "p": 0.3317497633694906
+  },
+  "v8-s3:v9-s1": {
+   "games": 534,
+   "b_only": 29,
+   "a_only": 24,
+   "p": 0.5831321542611763
+  },
+  "v8-s3:v10-s1": {
+   "games": 534,
+   "b_only": 47,
+   "a_only": 25,
+   "p": 0.012774595538064903
+  },
+  "v8-s3:v10-s2": {
+   "games": 534,
+   "b_only": 36,
+   "a_only": 18,
+   "p": 0.019834326728068286
+  },
+  "v10-s1:v10-s2": {
+   "games": 534,
+   "b_only": 28,
+   "a_only": 32,
+   "p": 0.6988834276200057
+  }
+ },
+ "examples": {
+  "run": "v8-s1",
+  "win": {
+   "answer": "abbey",
+   "won": true,
+   "turns": [
+    {
+     "guess": "crate",
+     "valid": true,
+     "feedback": [
+      0,
+      0,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "guess": "dales",
+     "valid": true,
+     "feedback": [
+      0,
+      1,
+      0,
+      2,
+      0
+     ]
+    },
+    {
+     "guess": "apnea",
+     "valid": true,
+     "feedback": [
+      2,
+      0,
+      0,
+      2,
+      0
+     ]
+    },
+    {
+     "guess": "abbey",
+     "valid": true,
+     "feedback": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ]
+  },
+  "spelling_loss": {
+   "answer": "baton",
+   "won": false,
+   "turns": [
+    {
+     "guess": "crate",
+     "valid": true,
+     "feedback": [
+      0,
+      0,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "guess": "talon",
+     "valid": true,
+     "feedback": [
+      1,
+      2,
+      0,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "saton",
+     "valid": false,
+     "feedback": null
+    },
+    {
+     "guess": "saton",
+     "valid": false,
+     "feedback": null
+    },
+    {
+     "guess": "saton",
+     "valid": false,
+     "feedback": null
+    },
+    {
+     "guess": "saton",
+     "valid": false,
+     "feedback": null
+    }
+   ]
+  },
+  "trap_loss": {
+   "answer": "swell",
+   "won": false,
+   "turns": [
+    {
+     "guess": "crate",
+     "valid": true,
+     "feedback": [
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "guess": "deles",
+     "valid": true,
+     "feedback": [
+      0,
+      1,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "guess": "skell",
+     "valid": true,
+     "feedback": [
+      2,
+      0,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "shell",
+     "valid": true,
+     "feedback": [
+      2,
+      0,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "smell",
+     "valid": true,
+     "feedback": [
+      2,
+      0,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "spell",
+     "valid": true,
+     "feedback": [
+      2,
+      0,
+      2,
+      2,
+      2
+     ]
+    }
+   ]
+  },
+  "recovered": {
+   "answer": "badly",
+   "won": true,
+   "turns": [
+    {
+     "guess": "crate",
+     "valid": true,
+     "feedback": [
+      0,
+      0,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "guess": "salon",
+     "valid": true,
+     "feedback": [
+      0,
+      2,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "guess": "gaily",
+     "valid": true,
+     "feedback": [
+      0,
+      2,
+      0,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "madly",
+     "valid": true,
+     "feedback": [
+      0,
+      2,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "guess": "padly",
+     "valid": false,
+     "feedback": null
+    },
+    {
+     "guess": "badly",
+     "valid": true,
+     "feedback": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ]
+  },
+  "after_same_word": {
+   "answer": "baton",
+   "won": true,
+   "turns": [
+    {
+     "guess": "crate",
+     "valid": true,
+     "feedback": [
+      0,
+      0,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "guess": "tails",
+     "valid": true,
+     "feedback": [
+      1,
+      2,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "guess": "gamut",
+     "valid": true,
+     "feedback": [
+      0,
+      2,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "guess": "baton",
+     "valid": true,
+     "feedback": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,31 @@
+{
+  "_readme": "Round v7 (case C, model alone): one session, two fine-tunes of SFT v5 s1 (the best spaced model: select 62.0% alone, 94.9% word-level). GPU 0 = v7: balanced spelling drill (each of the 5,557 common words is the target 30 times on boards built only around training-side words; targets may be any common public word, disclosed) + half of the v5 teacher games as replay. GPU 1 = v7s: the strict ablation, where no dev or test answer is ever a drill target. Both are scored alone on select and heldout, alone under the labelled retry-3 rule, and, if alone beats the base model's 62% on select, with word-level decoding. GPU 1 first scores the base model under retry-3, as the baseline for that rule. Decision gate (ROADMAP): select alone >= 75% and word-level >= 93.8%.",
+  "v7": {
+    "name": "v7",
+    "hours": 6.5,
+    "pip": [
+      "textarena",
+      "nltk",
+      "wordfreq"
+    ],
+    "gpu0": [
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v7-s1 --set run.seed=1 --set model.name=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --set data.traces_dir=data/traces/v7 --set data.hub_dataset=aafimalek2032/five-letters-traces-v7 --set data.exclude_benchmark_answers=True --set train.epochs=1 --set train.lr=5e-05 --set train.warmup_steps=100 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7-s1/best --split select",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7-s1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7-s1/best --split select --retries 3",
+      "gate v7-alone --check select/hf-sft-gemma270m-v7-s1-best --min-win 0.62 --min-games 534",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7-s1/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7-s1/best --split heldout --constrain wordle --constrain-mode word"
+    ],
+    "gpu1": [
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split select --retries 3",
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v7s-s1 --set run.seed=1 --set model.name=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --set data.traces_dir=data/traces/v7s --set data.hub_dataset=aafimalek2032/five-letters-traces-v7s --set data.exclude_benchmark_answers=True --set train.epochs=1 --set train.lr=5e-05 --set train.warmup_steps=100 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7s-s1/best --split select",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7s-s1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7s-s1/best --split select --retries 3",
+      "gate v7s-alone --check select/hf-sft-gemma270m-v7s-s1-best --min-win 0.62 --min-games 534",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7s-s1/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v7s-s1/best --split heldout --constrain wordle --constrain-mode word"
+    ]
+  }
+}

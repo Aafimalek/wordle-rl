@@ -1,0 +1,72 @@
+{
+  "split_seed": 20261108,
+  "lists": {
+    "answers.txt": {
+      "count": 2315,
+      "sha256": "5209b35f823f8b80f0404f863bd80df06d6a966c6eb1016d69f38badc6eed5d0",
+      "source": "https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b"
+    },
+    "extra_guesses.txt": {
+      "count": 10657,
+      "sha256": "99be2e38dadf3e26952af7cb4d963f65b632d5de91aa99e5ce308e4dc9617b65",
+      "source": "https://gist.github.com/cfreshman/cdcdf777450c5b5301e439061d29694c"
+    },
+    "textarena_accepts.txt": {
+      "count": 8019,
+      "sha256": "4b9901301380640c3d3cf29fe0b9b4997daa2e8db0a4700bc289e37db24a0c47",
+      "source": "Wordle guesses accepted by textarena==0.7.4 EnglishDictionary(keep_proper_nouns=False, include_nltk=True)"
+    },
+    "extra_answers.txt": {
+      "count": 1610,
+      "sha256": "4e701dfc3b77bc87dc4b975b02b6a52c74b13d321cd1585ef36bebe1d9351aaa",
+      "source": "shared-vocabulary words that are not Wordle answers and not in the rare split, with wordfreq==3.1.1 zipf_frequency(w,'en') >= 2.5 (the 10th percentile of Wordle answers is 2.52)"
+    },
+    "extra_answers_broad.txt": {
+      "count": 2484,
+      "sha256": "3758be4088910423992ecdee0c46de3ff58d95abac6ac30a8637ab655dfe3b7f",
+      "source": "same candidates as extra_answers.txt (shared vocabulary, not Wordle answers, not rare split) with wordfreq==3.1.1 zipf_frequency(w,'en') >= 2.0; superset of extra_answers.txt"
+    }
+  },
+  "splits": {
+    "train": {
+      "count": 1752,
+      "sha256": "3846eafca13b798b1aa4f50815e48fd739c395bca7d5eda0d4049e2effd40bec"
+    },
+    "val": {
+      "count": 100,
+      "sha256": "85f971fde698ab2de435fce103b6ba9b0580728aff7cb3514e693b19c3b3adca"
+    },
+    "heldout": {
+      "count": 463,
+      "sha256": "7bd2d3b83894defcd0ccb6593da6da46e186b943bc9e3b85c653e89324f36e89"
+    },
+    "full": {
+      "count": 2315,
+      "sha256": "5209b35f823f8b80f0404f863bd80df06d6a966c6eb1016d69f38badc6eed5d0"
+    },
+    "rare": {
+      "count": 500,
+      "sha256": "c13d13a9238c0d400a6c1ec10f2e52a7e55cf593cc64267335645ebad6ed9eb7"
+    },
+    "wordlebench": {
+      "count": 100,
+      "sha256": "cd634fab9574988be648651291ffcb29fc72aa41006afe5272605f4c994de120",
+      "source": "https://raw.githubusercontent.com/abronte/wordlebench/main/words.txt (fetched 2026-11-09)"
+    },
+    "jeffers": {
+      "count": 50,
+      "sha256": "b257f9d72ea45df1920633b0ee871c75d545156ceff45a9a33c416887ae8acf2",
+      "source": "https://raw.githubusercontent.com/georgejeffers/Wordle-AI-Benchmark/main/data/benchmark-words.json (fetched 2026-11-09)"
+    },
+    "val300": {
+      "count": 300,
+      "sha256": "921178f06a3703d0ecf1c70b82fde52824b4d1458298bd8eafb938d442a06bdc",
+      "source": "300 train-split words (no leaderboard words), seed SPLIT_SEED+2; model-selection set for round v5+, excluded from training answers when exclude_val300_answers=True"
+    },
+    "select": {
+      "count": 534,
+      "sha256": "6cdf00ac87e15f877481d855093cb0cd827010b217d351b35f542d5f9c222f93",
+      "source": "val + heldout minus the 148 leaderboard words; never a training answer. Model-selection set for round v5+ (replaces val300, which cost 300 training answers). Leaderboard sets stay the untouched final test."
+    }
+  }
+}

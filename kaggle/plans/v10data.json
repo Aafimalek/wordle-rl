@@ -1,0 +1,18 @@
+{
+  "_readme": "Regenerate the v10 recovery samples for the public data release. Same commands as kaggle/plans/v10.json (same model, words, parts and seeds), but the output goes to /kaggle/working so Kaggle keeps it (fetch with --all). No training and no evaluation. The original run printed its statistics (games, wins, events, samples); matching them shows the regenerated data equal the data v10 trained on.",
+  "v10data": {
+    "name": "v10data",
+    "hours": 1,
+    "pip": [
+      "textarena",
+      "nltk",
+      "wordfreq"
+    ],
+    "gpu0": [
+      "recovery-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --out /kaggle/working/data/v10-s1 --limit 9000 --part 0 --parts 2 --per-event 4 --repeat-prob 0.3 --seed 1"
+    ],
+    "gpu1": [
+      "recovery-data --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v8-s3/best --out /kaggle/working/data/v10-s2 --limit 9000 --part 1 --parts 2 --per-event 4 --repeat-prob 0.3 --seed 2"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "_readme": "Round v5 (consistent teacher). Session 1: SFT v5 seed 1 -> heldout dev evals -> GATE: continue only if SFT v5 + constraint beats SFT v3's 79.5% on heldout; otherwise both queues stop and we change course. Then GRPO v5 seed 1 (GPU 0) and SFT v5 seed 2 (GPU 1). Review session 1 before session 2: run GRPO seeds only if GRPO s1 beats SFT s1 on the select split (best val in metrics.jsonl); else replace them by SFT seed 3 only. Final test: set FINAL_RUN to the run chosen by the select split, run once. Launch: python kaggle/job.py plan kaggle/plans/v5.json session1 UPDATE after the gate: word-level decoding (--constrain-mode word) replaced the token-greedy constraint, so the gate threshold no longer applies. 'final-and-grpo' = the declared one-time final test of sft-gemma270m-v5-s1 (both settings) + GRPO v5 s1; 'seeds' = SFT v5 seeds 2 and 3, no gate.",
+  "session1": {
+    "name": "v5-s1",
+    "hours": 8.5,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-s1 --set run.seed=1 --set data.traces_dir=data/traces/v5 --set data.hub_dataset=aafimalek2032/five-letters-traces-v5 --set data.extra_traces_dir=data/traces/v5-extra --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v5-extra --set data.exclude_benchmark_answers=True --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split heldout --constrain wordle",
+      "gate sft-v5 --check heldout/hf-sft-gemma270m-v5-s1-best-constrained-wordle --min-win 0.795 --min-games 463",
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s1 --set run.seed=1 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s1/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s1/best --split heldout --constrain wordle"
+    ],
+    "gpu1": [
+      "gate sft-v5 --wait-minutes 330",
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-s2 --set run.seed=2 --set data.traces_dir=data/traces/v5 --set data.hub_dataset=aafimalek2032/five-letters-traces-v5 --set data.extra_traces_dir=data/traces/v5-extra --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v5-extra --set data.exclude_benchmark_answers=True --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --split heldout --constrain wordle"
+    ]
+  },
+  "session2-grpo-seeds": {
+    "name": "v5-s2",
+    "hours": 8.5,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s2 --set run.seed=2 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s2/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s2/best --split heldout --constrain wordle"
+    ],
+    "gpu1": [
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-s3 --set run.seed=3 --set data.traces_dir=data/traces/v5 --set data.hub_dataset=aafimalek2032/five-letters-traces-v5 --set data.extra_traces_dir=data/traces/v5-extra --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v5-extra --set data.exclude_benchmark_answers=True --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --split heldout --constrain wordle",
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s3 --set run.seed=3 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s3/best --split heldout",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s3/best --split heldout --constrain wordle"
+    ],
+    "from_kernel": [
+      "v5-s1"
+    ]
+  },
+  "final-test": {
+    "name": "v5-final",
+    "hours": 4,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split wordlebench",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split wordlebench --constrain wordle",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split jeffers",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split jeffers --constrain wordle"
+    ],
+    "gpu1": [
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --seeds 0:500",
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --seeds 0:500 --constrain shared",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split rare --constrain wordle"
+    ],
+    "from_kernel": [
+      "v5-s1",
+      "v5-s2"
+    ]
+  },
+  "final-and-grpo": {
+    "name": "v5-final",
+    "hours": 8.5,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split wordlebench --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split jeffers --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split wordlebench",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split jeffers",
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s1 --set run.seed=1 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s1/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s1/best --split heldout --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s1/best --split heldout"
+    ],
+    "gpu1": [
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --seeds 0:500 --constrain shared --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s1/best --split rare --constrain wordle --constrain-mode word"
+    ]
+  },
+  "seeds": {
+    "name": "v5-seeds",
+    "hours": 8.5,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-s2 --set run.seed=2 --set data.traces_dir=data/traces/v5 --set data.hub_dataset=aafimalek2032/five-letters-traces-v5 --set data.extra_traces_dir=data/traces/v5-extra --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v5-extra --set data.exclude_benchmark_answers=True --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --split heldout --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --split heldout"
+    ],
+    "gpu1": [
+      "sft --config configs/sft_gemma270m.toml --set run.name=sft-gemma270m-v5-s3 --set run.seed=3 --set data.traces_dir=data/traces/v5 --set data.hub_dataset=aafimalek2032/five-letters-traces-v5 --set data.extra_traces_dir=data/traces/v5-extra --set data.extra_hub_dataset=aafimalek2032/five-letters-traces-v5-extra --set data.exclude_benchmark_answers=True --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --split heldout --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --split heldout"
+    ]
+  },
+  "grpo-seeds": {
+    "name": "v5-grpo-seeds",
+    "hours": 8.5,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "from_kernel": [
+      "v5-seeds"
+    ],
+    "gpu0": [
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s2 --set run.seed=2 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s2/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s2/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s2/best --split heldout --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s2/best --split heldout"
+    ],
+    "gpu1": [
+      "grpo --config configs/grpo_gemma270m.toml --set run.name=grpo-gemma270m-v5-s3 --set run.seed=3 --set model.init=hub:aafimalek2032/five-letters-runs:sft-gemma270m-v5-s3/best --set curriculum.consistent=True --set rollout.extra_answer_frac=0.5 --set rollout.exclude_benchmark_answers=True --set reward.consistency_penalty=0.2 --set eval.split=select --set eval.games=534 --set eval.batch_size=100 --set checkpoint.hub_repo=aafimalek2032/five-letters-runs --set eval.every_steps=100",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s3/best --split select --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s3/best --split heldout --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:grpo-gemma270m-v5-s3/best --split heldout"
+    ]
+  },
+  "final-test-2": {
+    "name": "v5-final2",
+    "hours": 3,
+    "pip": [
+      "textarena",
+      "nltk"
+    ],
+    "gpu0": [
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split wordlebench --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split jeffers --constrain wordle --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split wordlebench",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split jeffers"
+    ],
+    "gpu1": [
+      "public-eval --mode adapted --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --seeds 0:500 --constrain shared --constrain-mode word",
+      "eval --policy hf --model hub:aafimalek2032/five-letters-runs:FINAL_RUN/best --split rare --constrain wordle --constrain-mode word"
+    ]
+  }
+}

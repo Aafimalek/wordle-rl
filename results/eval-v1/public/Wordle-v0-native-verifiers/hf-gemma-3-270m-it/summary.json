@@ -1,0 +1,51 @@
+{
+  "protocol": "eval-v1",
+  "public_env": "Wordle-v0",
+  "mode": "native-verifiers",
+  "seeds": [
+    0,
+    500
+  ],
+  "textarena_version": "0.7.4",
+  "verifiers_protocol_source": "copy-of-verifiers-0.4.1",
+  "policy": {
+    "name": "hf-gemma-3-270m-it",
+    "model": "google/gemma-3-270m-it",
+    "do_sample": false,
+    "max_new_tokens": 256,
+    "template_kwargs": {},
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "all": {
+    "games": 500,
+    "unique_answers": 154,
+    "win_rate": 0.0,
+    "win_rate_ci95": [
+      0.0,
+      0.0
+    ],
+    "mean_guesses_wins": null,
+    "mean_guesses_fail7": 7.0,
+    "mean_textarena_reward": 0.0,
+    "games_lost_by_invalid_moves": 500
+  },
+  "clean": {
+    "games": 109,
+    "unique_answers": 32,
+    "win_rate": 0.0,
+    "win_rate_ci95": [
+      0.0,
+      0.0
+    ],
+    "mean_guesses_wins": null,
+    "mean_guesses_fail7": 7.0,
+    "mean_textarena_reward": 0.0,
+    "games_lost_by_invalid_moves": 109
+  },
+  "secret_outside_wordle_lists": {
+    "games": 0
+  }
+}

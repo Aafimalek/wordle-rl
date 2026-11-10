@@ -1,0 +1,28 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "full",
+  "word_set_sha256": "5209b35f823f8b80f0404f863bd80df06d6a966c6eb1016d69f38badc6eed5d0",
+  "n_words": 2315,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "solver-LookaheadSolver",
+    "solver": "LookaheadSolver",
+    "pool": "answers",
+    "hard_mode": false,
+    "candidate_bonus": 0.1,
+    "opener": "salet",
+    "beam": [
+      1,
+      12,
+      6,
+      3,
+      2,
+      1
+    ],
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  }
+}

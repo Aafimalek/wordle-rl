@@ -1,0 +1,8 @@
+{
+  "pairs": 10000,
+  "repeated_letter_pairs": 5000,
+  "mismatches": 0,
+  "examples": [],
+  "textarena_version": "0.7.4",
+  "textarena_secret_words": 156
+}

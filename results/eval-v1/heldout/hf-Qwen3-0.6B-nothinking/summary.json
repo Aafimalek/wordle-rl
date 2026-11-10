@@ -1,0 +1,44 @@
+{
+  "protocol": "eval-v1",
+  "word_set": "heldout",
+  "word_set_sha256": "7bd2d3b83894defcd0ccb6593da6da46e186b943bc9e3b85c653e89324f36e89",
+  "n_words": 463,
+  "hard_mode": false,
+  "max_turns": 6,
+  "policy": {
+    "name": "hf-Qwen3-0.6B",
+    "model": "Qwen/Qwen3-0.6B",
+    "do_sample": false,
+    "max_new_tokens": 96,
+    "template_kwargs": {
+      "enable_thinking": false
+    },
+    "format": {
+      "spaced": true,
+      "state_line": true
+    }
+  },
+  "games": 463,
+  "win_rate": 0.0,
+  "win_rate_ci95": [
+    0.0,
+    0.0
+  ],
+  "mean_guesses_wins": null,
+  "mean_guesses_fail7": 7.0,
+  "mean_guesses_fail7_ci95": [
+    7.0,
+    7.0
+  ],
+  "invalid_turn_rate": 1.0,
+  "games_with_invalid": 463,
+  "histogram": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "fail": 463
+  }
+}

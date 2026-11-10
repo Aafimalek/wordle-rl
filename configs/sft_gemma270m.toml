@@ -1,0 +1,43 @@
+# SFT: imitate the lookahead teacher. Runs on one free T4 (Kaggle or Colab).
+# Resume is automatic: rerun the same command in a new session.
+# Override any value without editing this file:  --set train.lr=1e-4 --set run.name=sft-lr1e4
+
+[run]
+name = "sft-gemma270m-v2"
+seed = 1
+trackio_project = ""            # e.g. "five-letters" to log curves to Trackio (free, optional)
+
+[model]
+name = "google/gemma-3-270m-it"  # accept the Gemma license on its HF page first
+gradient_checkpointing = false   # turn on if a bigger micro batch runs out of memory
+
+[data]
+traces_dir = "data/traces/v2"   # v2: shared vocabulary, opener CRATE, 10% recovery games
+hub_dataset = ""                 # e.g. "YOUR_HF_NAME/five-letters-traces-v2": downloaded if traces_dir is empty
+max_length = 512
+
+[train]
+epochs = 1
+micro_batch_size = 16
+grad_accum = 4                   # 64 samples per optimizer step
+lr = 5e-5
+warmup_steps = 100
+grad_clip = 1.0
+
+[eval]
+every_steps = 500                # quick greedy games on the val split (never heldout)
+split = "val"
+games = 100
+batch_size = 100
+
+[checkpoint]
+every_minutes = 20               # local checkpoint
+keep = 2
+hub_repo = ""                    # e.g. "YOUR_HF_NAME/five-letters-runs" (private). Strongly recommended.
+hub_every_minutes = 30
+hub_include_optimizer = false   # 100 GB free private Hub cap: weights only     # needed for an exact resume; about 2 GB extra per upload
+squash_hub_history = true        # keep free Hub storage flat
+
+[budget]
+hours = "auto"                   # Kaggle 8 h, Colab 11 h, local unlimited. Or a number.
+reserve_minutes = 20             # stop this long before the budget to save and upload
