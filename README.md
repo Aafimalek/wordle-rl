@@ -6,10 +6,14 @@
 
 Gemma 3 270M, trained on free Kaggle GPUs to play Wordle through text. Total compute cost: $0.
 
+**[▶ Watch it play, live in your browser](https://huggingface.co/spaces/aafimalek2032/five-letters)**
+
 [Model](https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m) ·
 [Data and every evaluation game](https://huggingface.co/collections/aafimalek2032/five-letters-wordle-rl-6af332879e666b4001ede7ed) ·
 [Paper source](paper/main.tex) ·
 [All results](docs/RESULTS.md)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24114970.svg)](https://doi.org/10.5281/zenodo.24114970)
 
 </div>
 
@@ -94,6 +98,7 @@ The code is Apache-2.0. The model is a fine-tune of Gemma 3 and is subject to th
   title  = {Five Letters, 270M Parameters: How Far Can a Tiny Language Model Go at Wordle?},
   author = {Malek, Aafi Khan},
   year   = {2026},
+  doi    = {10.5281/zenodo.24114970},
   url    = {https://github.com/Aafimalek/wordle-rl}
 }
 ```

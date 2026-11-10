@@ -1,0 +1,3 @@
+transformers==5.20.2
+safetensors
+fiveletters @ git+https://github.com/Aafimalek/wordle-rl@v1.0.0

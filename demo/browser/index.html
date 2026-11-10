@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Five Letters, 270M Parameters</title>
+<meta name="description" content="A 270M-parameter language model, trained on free GPUs, plays the five-letter word game live in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f5f1; --card: #ffffff; --ink: #0b0b0b; --ink2: #5a5955; --line: #e4e3df; --soft: #efeee9;
+  --g: #1baf7a; --y: #eda100; --x: #8a8984; --r: #eb6834; --blue: #2a78d6;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e0f11; --card: #16171a; --ink: #f2f1ee; --ink2: #a6a49e; --line: #2a2b30; --soft: #1e1f23;
+          --x: #5d5c58; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.5; }
+a { color: var(--blue); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+/* hero */
+header { padding: 44px 0 18px; text-align: center; }
+.kicker { font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); font-weight: 700; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.08; margin: 10px 0 12px; font-weight: 800; letter-spacing: -.025em; }
+h1 em { font-style: normal; color: var(--g); }
+.lede { max-width: 690px; margin: 0 auto; color: var(--ink2); font-size: 1.05rem; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 26px auto 8px; max-width: 900px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 12px; box-shadow: var(--shadow); }
+.stat b { display: block; font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
+.stat span { font-size: .8rem; color: var(--ink2); }
+.links { margin-top: 16px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: .95rem; }
+
+/* cards and tabs */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); margin: 22px 0; }
+.tabs { display: flex; gap: 6px; padding: 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tab { border: 0; background: transparent; color: var(--ink2); font: inherit; font-weight: 700; padding: 9px 16px;
+       border-radius: 11px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--soft); color: var(--ink); }
+.panel { display: none; padding: 22px; }
+.panel.on { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 28px; }
+.side h2 { font-size: 1.15rem; margin: 0 0 6px; }
+.side p { margin: 0 0 14px; color: var(--ink2); font-size: .93rem; }
+label.lab { display: block; font-size: .8rem; font-weight: 700; color: var(--ink2); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+input[type=text] { width: 100%; font: inherit; font-size: 1.2rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+       padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); }
+input[type=text]:focus { outline: none; border-color: var(--g); }
+input.search { letter-spacing: normal; text-transform: none; font-size: .95rem; font-weight: 500; padding: 9px 12px; }
+.row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 700; border-radius: 12px; padding: 10px 16px; cursor: pointer; border: 1.5px solid var(--line);
+       background: var(--card); color: var(--ink); }
+.btn.primary { background: var(--g); border-color: var(--g); color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: inline-flex; background: var(--soft); border-radius: 12px; padding: 3px; gap: 3px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; font: inherit; font-size: .88rem; font-weight: 600; color: var(--ink2);
+              padding: 7px 12px; border-radius: 9px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.progress { height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; margin-top: 12px; display: none; }
+.progress i { display: block; height: 100%; width: 0; background: var(--g); transition: width .2s; }
+.note { font-size: .82rem; color: var(--ink2); margin-top: 12px; }
+.note b { color: var(--ink); }
+
+/* board */
+.board { display: flex; flex-direction: column; gap: 8px; }
+.answer { font-size: .92rem; color: var(--ink2); margin-bottom: 12px; min-height: 1.4em; }
+.answer b { color: var(--ink); letter-spacing: .12em; }
+.brow { display: grid; grid-template-columns: 18px auto minmax(0, 1fr); gap: 14px; align-items: center; min-height: 54px; }
+.bn { font-size: .78rem; color: var(--ink2); text-align: right; font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(5, 52px); gap: 6px; }
+.tile { width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 1.55rem; text-transform: uppercase; }
+.tile.g { background: var(--g); color: #fff; } .tile.y { background: var(--y); color: #1b1b1b; } .tile.x { background: var(--x); color: #fff; }
+.tile.rej { border: 2px dashed var(--r); color: var(--r); } .tile.empty { border: 2px solid var(--line); }
+.brow.new .tile { animation: flip .5s ease both; animation-delay: calc(var(--i) * 85ms); }
+@keyframes flip { 0% { transform: rotateX(90deg); opacity: .15; } 100% { transform: none; opacity: 1; } }
+.meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .82rem; letter-spacing: .14em; color: var(--ink2); }
+.badge { font-size: .76rem; font-weight: 700; color: var(--r); }
+.state { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .72rem; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status { margin-top: 18px; font-size: 1.02rem; min-height: 1.5em; }
+.ok { color: var(--g); font-weight: 800; } .bad { color: var(--r); font-weight: 800; } .muted { color: var(--ink2); }
+.thinking::after { content: ""; display: inline-block; width: 1.2em; text-align: left; animation: dots 1.2s steps(4) infinite; }
+@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+.compare { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--soft); font-size: .86rem; color: var(--ink2); display: none; }
+.compare b { color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .78rem; color: var(--ink2); margin-top: 16px; }
+.legend i { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 5px; }
+
+/* recorded games */
+.summary { display: flex; gap: 22px; flex-wrap: wrap; margin: 14px 0 4px; }
+.summary div { font-size: .85rem; color: var(--ink2); } .summary b { display: block; font-size: 1.35rem; color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; max-height: 260px; overflow: auto; margin-top: 10px; padding: 2px; }
+.chip { font: inherit; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .74rem; font-weight: 600; text-transform: uppercase;
+        border-radius: 7px; padding: 4px 7px; cursor: pointer; border: 1.5px solid transparent; }
+.chip.won { background: color-mix(in srgb, var(--g) 16%, transparent); color: var(--ink); }
+.chip.lost { background: color-mix(in srgb, var(--r) 18%, transparent); color: var(--ink); }
+.chip[aria-current="true"] { border-color: var(--ink); }
+.check { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink2); margin-top: 10px; }
+
+/* about */
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.about { padding: 22px; }
+.about h3 { margin: 0 0 8px; font-size: 1rem; }
+.about p, .about li { font-size: .9rem; color: var(--ink2); }
+.about ol { padding-left: 18px; margin: 0; }
+.about li { margin-bottom: 6px; } .about li b { color: var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+th { color: var(--ink2); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+td.n { font-variant-numeric: tabular-nums; } td b { color: var(--g); }
+.tablewrap { overflow-x: auto; }
+pre.cite { background: var(--soft); border-radius: 12px; padding: 12px; font-size: .74rem; overflow-x: auto; color: var(--ink2); }
+footer { text-align: center; color: var(--ink2); font-size: .82rem; padding: 10px 0 40px; }
+
+@media (max-width: 820px) {
+  .panel.on { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .tiles { grid-template-columns: repeat(5, 42px); gap: 5px; }
+  .tile { width: 42px; height: 42px; font-size: 1.25rem; }
+  .brow { grid-template-columns: 14px auto; gap: 10px; }
+  .meta { grid-column: 2; }
+  .panel { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .brow.new .tile { animation: none; } }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="kicker">A research demo · runs entirely in your browser</div>
+  <h1>Five Letters, <em>270M</em> Parameters</h1>
+  <p class="lede">A tiny language model, Gemma&nbsp;3&nbsp;270M, trained on free GPUs to play the five-letter word game through text.
+  It reads the feedback, writes short notes on what it knows, and guesses one word per turn.</p>
+  <div class="stats">
+    <div class="stat"><b>97.0%</b><span>WordleBench, word-level decoding</span></div>
+    <div class="stat"><b>94.0%</b><span>WordleBench, model alone, leaderboard rule</span></div>
+    <div class="stat"><b>98.6%</b><span>500 TextArena games, word-level decoding</span></div>
+    <div class="stat"><b>$0</b><span>total compute cost</span></div>
+  </div>
+  <nav class="links">
+    <a href="https://github.com/Aafimalek/wordle-rl" target="_blank" rel="noopener">Code &amp; paper</a>
+    <a href="https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m" target="_blank" rel="noopener">Model</a>
+    <a href="https://huggingface.co/collections/aafimalek2032/five-letters-wordle-rl-6af332879e666b4001ede7ed" target="_blank" rel="noopener">Data &amp; every test game</a>
+    <a href="https://doi.org/10.5281/zenodo.24114970" target="_blank" rel="noopener">DOI</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="live">Live in your browser</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="rec">Recorded test games</button>
+    </div>
+
+    <div class="panel on" id="live">
+      <div class="side">
+        <h2>Watch it play</h2>
+        <p>Pick a hidden word. The model never sees it: it only sees the feedback after each guess, under the strict rule
+        (a guess that is not a dictionary word gets no feedback and still uses the turn).</p>
+        <label class="lab">Model copy</label>
+        <div class="seg" id="prec">
+          <button data-dtype="q8" aria-pressed="true">8-bit · 440 MB</button>
+          <button data-dtype="fp32" aria-pressed="false">Full precision · 1.7 GB</button>
+        </div>
+        <div class="row"><button class="btn primary" id="load">Load the model</button></div>
+        <div class="progress" id="prog"><i></i></div>
+        <div class="note" id="loadnote">Downloads once and is cached by your browser. Nothing you type leaves your device.</div>
+        <label class="lab" for="word">Hidden word</label>
+        <input type="text" id="word" maxlength="5" placeholder="baton" autocomplete="off" spellcheck="false">
+        <div class="row">
+          <button class="btn" id="rand">Random test word</button>
+          <button class="btn primary" id="play" disabled>Play</button>
+        </div>
+        <div class="note" id="browsernote">The browser runs the final model alone with greedy decoding, as in the paper.
+          On the 100 WordleBench words, the <b>8-bit copy</b> played 83 games exactly like the paper's model and won 83
+          (paper: 87); the <b>full-precision copy</b> reproduced all 100 games exactly (won 87, as in the paper). Word-level decoding needs the full code; its games are in the recorded tab.</div>
+      </div>
+      <div>
+        <div id="liveboard"></div>
+        <div class="compare" id="compare"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="rec">
+      <div class="side">
+        <h2>Every recorded game</h2>
+        <p>The exact games behind the paper's numbers, replayed from the records. Test sets were scored once, for a model
+        declared in advance; the development sets chose that model.</p>
+        <label class="lab">Word set</label>
+        <div class="seg" id="sets"></div>
+        <label class="lab">Decoding</label>
+        <div class="seg" id="modes">
+          <button data-mode="alone" aria-pressed="true">Model alone</button>
+          <button data-mode="word" aria-pressed="false">Word-level decoding</button>
+        </div>
+        <div class="summary" id="summary"></div>
+        <input type="text" class="search" id="filter" placeholder="Find a word" autocomplete="off" spellcheck="false">
+        <label class="check"><input type="checkbox" id="lostonly"> Show lost games only</label>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div><div id="recboard"></div></div>
+    </div>
+  </section>
+
+  <section class="card about">
+    <div class="grid3">
+      <div>
+        <h3>How it was trained</h3>
+        <ol>
+          <li><b>Teacher games.</b> The model imitates a solver that only plays words consistent with every clue.</li>
+          <li><b>Spelling drill.</b> It then followed the clues but could not recall real words that fit them, so it practised writing real words for thousands of boards.</li>
+          <li><b>Recovery round.</b> When the game rejected a non-word, it wrote the same word again. One round of training on boards with its own rejected words fixed most of these repeats.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Final test, scored once</h3>
+        <div class="tablewrap"><table>
+          <tr><th>Test set</th><th>Alone</th><th>Word-level</th><th>GPT-5*</th></tr>
+          <tr><td>WordleBench</td><td class="n">87.0%<br><span class="muted">94.0% lb. rule</span></td><td class="n"><b>97.0%</b></td><td class="n">99%</td></tr>
+          <tr><td>Jeffers</td><td class="n">74.0%<br><span class="muted">88.0% lb. rule</span></td><td class="n"><b>96.0%</b></td><td class="n">100%</td></tr>
+          <tr><td>TextArena</td><td class="n">85.8%</td><td class="n"><b>98.6%</b></td><td class="n">–</td></tr>
+        </table></div>
+        <p>Alone = strict rule unless marked “lb. rule” (the leaderboards' rule: any five letters get feedback). *Cited from the leaderboards: other harnesses and prompts, same word sets.</p>
+      </div>
+      <div>
+        <h3>Read more</h3>
+        <p>The paper, code, frozen word lists and every evaluation summary are on
+          <a href="https://github.com/Aafimalek/wordle-rl" target="_blank" rel="noopener">GitHub</a>. Every game the model played in the paper, with its raw output, is in the
+          <a href="https://huggingface.co/datasets/aafimalek2032/five-letters-results" target="_blank" rel="noopener">results dataset</a>.</p>
+        <pre class="cite">@misc{malek2026fiveletters,
+  title  = {Five Letters, 270M Parameters: How Far
+            Can a Tiny Language Model Go at Wordle?},
+  author = {Malek, Aafi Khan},
+  year   = {2026},
+  url    = {https://github.com/Aafimalek/wordle-rl}
+}</pre>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="wrap">Built with transformers.js. The model runs on your device; this page sends nothing to a server.</footer>
+
+<script type="module">
+import { Game, modelTurn, parseGuess, parseState, feedbackString } from "./game.js";
+
+const TJS = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+const MODEL_ID = "aafimalek2032/wordle-rl-gemma3-270m-onnx";
+const SETS = [["wordlebench", "WordleBench"], ["jeffers", "Jeffers"], ["rare", "Rare"], ["select", "Selection"], ["heldout", "Heldout"]];
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let DATA = null, VALID = null, tok = null, model = null, busy = false, replayToken = 0, dtype = "q8", loadedLabel = "";
+
+// ---------- board ----------
+function tilesHTML(guess, code, valid) {
+  const letters = (guess || "").toUpperCase().padEnd(5).slice(0, 5).split("");
+  return letters.map((ch, i) => {
+    const cls = valid ? { G: "g", Y: "y", X: "x" }[code[i]] : "rej";
+    return `<div class="tile ${cls}" style="--i:${i}" aria-label="${esc(ch)} ${valid ? code[i] : "rejected"}">${esc(ch.trim())}</div>`;
+  }).join("");
+}
+function boardHTML(turns, { answer = null, status = "", animateLast = false } = {}) {
+  const rows = turns.map((t, k) => {
+    const meta = t.valid ? `<span class="code">${t.code}</span>` : `<span class="badge">rejected · not in the word list</span>`;
+    const state = t.state ? `<div class="state" title="${esc(t.state)}">${esc(t.state)}</div>` : "";
+    return `<div class="brow${animateLast && k === turns.length - 1 ? " new" : ""}"><div class="bn">${k + 1}</div>` +
+           `<div class="tiles">${tilesHTML(t.guess, t.code, t.valid)}</div><div class="meta">${meta}${state}</div></div>`;
+  });
+  for (let k = turns.length; k < 6; k++) {
+    rows.push(`<div class="brow"><div class="bn">${k + 1}</div><div class="tiles">${'<div class="tile empty"></div>'.repeat(5)}</div><div class="meta"></div></div>`);
+  }
+  const head = answer ? `hidden word <b>${esc(answer.toUpperCase())}</b> <span class="muted">· the model never sees it</span>` : "&nbsp;";
+  return `<div class="answer">${head}</div><div class="board">${rows.join("")}</div><div class="status">${status}</div>` +
+         `<div class="legend"><span><i style="background:var(--g)"></i>right place</span><span><i style="background:var(--y)"></i>elsewhere in the word</span>` +
+         `<span><i style="background:var(--x)"></i>not in the word</span><span><i style="border:2px dashed var(--r)"></i>rejected, uses the turn</span></div>`;
+}
+const outcome = (won, n, answer) => won
+  ? `<span class="ok">Solved in ${n} ${n === 1 ? "turn" : "turns"}</span>`
+  : `<span class="bad">Not solved in 6 turns</span> <span class="muted">· the word was <b>${esc(answer.toUpperCase())}</b></span>`;
+const recTurns = (g) => g.t.map(([guess, code, state]) => ({ guess, code, valid: code !== "", state }));
+
+// ---------- recorded games ----------
+let curSet = "wordlebench", curMode = "alone", curWord = null;
+function setupRecorded() {
+  $("#sets").innerHTML = SETS.map(([k, label]) =>
+    `<button data-set="${k}" aria-pressed="${k === curSet}">${label} · ${Object.keys(DATA.sets[k].alone).length}</button>`).join("");
+  $("#sets").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; curSet = b.dataset.set; curWord = null; refreshRecorded(); };
+  $("#modes").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; curMode = b.dataset.mode; refreshRecorded(); };
+  $("#filter").oninput = refreshChips;
+  $("#lostonly").onchange = refreshChips;
+  $("#chips").onclick = (e) => { const b = e.target.closest(".chip"); if (b) showRecorded(b.dataset.w); };
+  refreshRecorded();
+}
+function refreshRecorded() {
+  document.querySelectorAll("#sets button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.set === curSet));
+  document.querySelectorAll("#modes button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === curMode));
+  const s = DATA.summary[`${curSet}:${curMode}`];
+  const kind = ["wordlebench", "jeffers", "rare"].includes(curSet) ? "test set, scored once" : "development set";
+  $("#summary").innerHTML = `<div><b>${(100 * s.won / s.games).toFixed(1)}%</b>won</div><div><b>${s.won} / ${s.games}</b>games</div>` +
+                            `<div><b>${s.gw.toFixed(2)}</b>guesses per win</div><div><b style="font-size:.95rem">${kind}</b>&nbsp;</div>`;
+  refreshChips();
+  const games = DATA.sets[curSet][curMode];
+  if (!curWord || !games[curWord]) curWord = Object.keys(games).find((w) => !games[w].w) || Object.keys(games)[0];
+  showRecorded(curWord);
+}
+function refreshChips() {
+  const games = DATA.sets[curSet][curMode], q = $("#filter").value.trim().toLowerCase(), lost = $("#lostonly").checked;
+  $("#chips").innerHTML = Object.keys(games).filter((w) => w.includes(q) && (!lost || !games[w].w))
+    .map((w) => `<button class="chip ${games[w].w ? "won" : "lost"}" data-w="${w}" aria-current="${w === curWord}">${w}</button>`).join("");
+}
+function showRecorded(w) {
+  curWord = w;
+  document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-current", c.dataset.w === w));
+  const g = DATA.sets[curSet][curMode][w], turns = recTurns(g), token = ++replayToken;
+  const label = curMode === "alone" ? "model alone" : "word-level decoding";
+  let k = 0;
+  const step = () => {
+    if (token !== replayToken) return;
+    k++;
+    const done = k >= turns.length;
+    $("#recboard").innerHTML = boardHTML(turns.slice(0, k), { answer: w, animateLast: true,
+      status: done ? `${outcome(g.w, turns.length, w)} <span class="muted">· recorded, ${label}</span>` : "" });
+    if (!done) setTimeout(step, 420);
+  };
+  step();
+}
+
+// ---------- live ----------
+function findRecord(w) {
+  for (const [k, label] of SETS) if (DATA.sets[k].alone[w]) return { g: DATA.sets[k].alone[w], label };
+  return null;
+}
+async function loadModel() {
+  $("#load").disabled = true;
+  document.querySelectorAll("#prec button").forEach((b) => (b.disabled = true));
+  $("#load").textContent = "Loading the model…";
+  $("#prog").style.display = "block";
+  const files = {};
+  const progress_callback = (p) => {
+    if (p.status === "progress" && p.total) {
+      files[p.file] = [p.loaded, p.total];
+      const [a, b] = Object.values(files).reduce((s, [l, t]) => [s[0] + l, s[1] + t], [0, 0]);
+      $("#prog i").style.width = `${(100 * a / b).toFixed(1)}%`;
+      $("#loadnote").textContent = `Downloading ${(a / 1e6).toFixed(0)} of ${(b / 1e6).toFixed(0)} MB…`;
+    }
+  };
+  try {
+    const { AutoTokenizer, AutoModelForCausalLM, env } = await import(TJS);
+    env.allowLocalModels = false;
+    tok = await AutoTokenizer.from_pretrained(MODEL_ID, { progress_callback });
+    model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, { dtype, device: "wasm", progress_callback });
+    loadedLabel = dtype === "q8" ? "8-bit copy" : "full-precision copy";
+    $("#prog i").style.width = "100%";
+    $("#load").textContent = `Loaded: ${loadedLabel}`;
+    $("#loadnote").innerHTML = "<b>Ready.</b> Cached for your next visit.";
+    $("#play").disabled = false;
+  } catch (err) {
+    $("#load").disabled = false;
+    document.querySelectorAll("#prec button").forEach((b) => (b.disabled = false));
+    $("#load").textContent = "Retry loading the model";
+    $("#loadnote").innerHTML = `<span class="bad">Could not load the model:</span> ${esc(err.message || err)}. ` +
+      "Try a recent Chrome, Edge or Firefox on a computer; the recorded games work everywhere.";
+  }
+}
+async function play() {
+  if (busy || !model) return;
+  const w = $("#word").value.trim().toLowerCase();
+  if (!/^[a-z]{5}$/.test(w) || !VALID.has(w)) {
+    $("#liveboard").innerHTML = boardHTML([], { status: '<span class="bad">Choose a real five-letter word from the 12,972-word dictionary.</span>' });
+    return;
+  }
+  busy = true; $("#play").disabled = true; $("#rand").disabled = true; $("#compare").style.display = "none";
+  const game = new Game(w), t0 = performance.now();
+  const view = () => game.turns.map((t) => ({ guess: t.guess || "?????", code: t.valid ? feedbackString(t.feedback) : "",
+                                              valid: t.valid, state: parseState(t.raw) || "" }));
+  $("#liveboard").innerHTML = boardHTML([], { answer: w, status: '<span class="muted thinking">thinking</span>' });
+  try {
+    while (!game.done) {
+      await new Promise((r) => setTimeout(r, 30));  // let the page paint
+      const raw = await modelTurn(model, tok, game);
+      game.step(raw, parseGuess(raw), VALID);
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      $("#liveboard").innerHTML = boardHTML(view(), { answer: w, animateLast: true,
+        status: game.done ? `${outcome(game.won, game.turns.length, w)} <span class="muted">· ${secs} s on your device</span>`
+                          : '<span class="muted thinking">thinking</span>' });
+    }
+    const rec = findRecord(w);
+    if (rec) {
+      const mine = game.turns.map((t) => t.guess || "?").join(" ");
+      const theirs = rec.g.t.map((t) => t[0] || "?").join(" ");
+      $("#compare").innerHTML = `<b>Paper's record</b> for ${esc(w.toUpperCase())} (${rec.label} set, full precision): ` +
+        `${esc(theirs.toUpperCase())} · ${rec.g.w ? "won" : "lost"}. ` +
+        (mine === theirs ? '<span class="ok">Same game.</span>' : `The ${loadedLabel} took a different path.`);
+      $("#compare").style.display = "block";
+    }
+  } catch (err) {
+    $("#liveboard").innerHTML = boardHTML(view(), { answer: w, status: `<span class="bad">Error:</span> ${esc(err.message || err)}` });
+  }
+  busy = false; $("#play").disabled = false; $("#rand").disabled = false;
+}
+
+// ---------- start ----------
+document.querySelectorAll(".tab").forEach((t) => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x === t));
+  document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("on", p.id === t.dataset.tab));
+});
+$("#load").onclick = loadModel;
+$("#prec").onclick = (e) => {
+  const b = e.target.closest("button");
+  if (!b || b.disabled) return;
+  dtype = b.dataset.dtype;
+  document.querySelectorAll("#prec button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+};
+$("#play").onclick = play;
+$("#word").addEventListener("keydown", (e) => { if (e.key === "Enter") play(); });
+$("#rand").onclick = () => {
+  const ws = Object.keys(DATA.sets.wordlebench.alone);
+  $("#word").value = ws[Math.floor(Math.random() * ws.length)];
+  if (model) play();
+};
+$("#liveboard").innerHTML = boardHTML([]);
+const [data, words] = await Promise.all([fetch("games.json").then((r) => r.json()), fetch("words.txt").then((r) => r.text())]);
+DATA = data;
+VALID = new Set(words.split("\n").filter(Boolean));
+setupRecorded();
+</script>
+</body>
+</html>
