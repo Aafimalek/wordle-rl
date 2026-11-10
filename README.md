@@ -93,12 +93,16 @@ The code is Apache-2.0. The model is a fine-tune of Gemma 3 and is subject to th
 
 ## Citation
 
+The paper (preprint, Zenodo):
+
 ```bibtex
 @misc{malek2026fiveletters,
   title  = {Five Letters, 270M Parameters: How Far Can a Tiny Language Model Go at Wordle?},
   author = {Malek, Aafi Khan},
   year   = {2026},
-  doi    = {10.5281/zenodo.24114970},
-  url    = {https://github.com/Aafimalek/wordle-rl}
+  doi    = {10.5281/zenodo.24116756},
+  url    = {https://doi.org/10.5281/zenodo.24116756}
 }
 ```
+
+The code (this repository): [10.5281/zenodo.24114970](https://doi.org/10.5281/zenodo.24114970). Author ORCID: [0009-0008-3211-5028](https://orcid.org/0009-0008-3211-5028).

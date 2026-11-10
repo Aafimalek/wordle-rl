@@ -6,6 +6,7 @@ authors:
   - family-names: Malek
     given-names: Aafi Khan
     affiliation: Independent researcher
+    orcid: "https://orcid.org/0009-0008-3211-5028"
 doi: 10.5281/zenodo.24114970
 repository-code: "https://github.com/Aafimalek/wordle-rl"
 url: "https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m"
@@ -23,3 +24,13 @@ abstract: >-
   97.0% of WordleBench games, 96.0% of Jeffers games and 98.6% of 500 TextArena games; alone, under the leaderboards'
   own rule, it wins 94.0% of WordleBench games. The repository holds the code, the frozen word lists, every evaluation
   summary and the paper source.
+preferred-citation:
+  type: article
+  title: "Five Letters, 270M Parameters: How Far Can a Tiny Language Model Go at Wordle?"
+  authors:
+    - family-names: Malek
+      given-names: Aafi Khan
+      orcid: "https://orcid.org/0009-0008-3211-5028"
+  doi: 10.5281/zenodo.24116756
+  year: 2026
+  url: "https://doi.org/10.5281/zenodo.24116756"
