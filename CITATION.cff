@@ -11,8 +11,8 @@ doi: 10.5281/zenodo.24114970
 repository-code: "https://github.com/Aafimalek/wordle-rl"
 url: "https://huggingface.co/aafimalek2032/wordle-rl-gemma3-270m"
 license: Apache-2.0
-version: "1.0.0"
-date-released: "2026-11-10"
+version: "1.0.2"
+date-released: "2026-11-16"
 keywords:
   - small language models
   - Wordle
